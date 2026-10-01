@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Atto 1 Calc">
+    <meta name="theme-color" content="#667eea">
+    <title>Atto 1 Calculator</title>
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Atto 1 Calculator","short_name":"Atto 1 Calc","start_url":"./index.html","display":"standalone","background_color":"%23667eea","theme_color":"%23667eea"}'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            padding-left: max(24px, env(safe-area-inset-left));
+            padding-right: max(24px, env(safe-area-inset-right));
+            padding-top: max(24px, env(safe-area-inset-top));
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1d1d1f;
+            letter-spacing: -0.3px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #6e6e73;
+            margin-bottom: 20px;
+        }
+
+        .segmented {
+            display: flex;
+            background: #f2f2f7;
+            border-radius: 10px;
+            padding: 3px;
+            margin-bottom: 24px;
+        }
+
+        .segmented button {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 9px 0;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: inherit;
+            color: #6e6e73;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .segmented button.active {
+            background: white;
+            color: #1d1d1f;
+            font-weight: 600;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #6e6e73;
+            margin-bottom: 6px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e5ea;
+            border-radius: 12px;
+            font-size: 17px;
+            font-family: inherit;
+            color: #1d1d1f;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .chip {
+            flex: 1;
+            border: none;
+            background: #f2f2f7;
+            color: #1d1d1f;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            padding: 9px 0;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .row2 {
+            display: flex;
+            gap: 12px;
+        }
+
+        .row2 .field {
+            flex: 1;
+        }
+
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 2px 16px;
+        }
+
+        .switch-row span {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch .track {
+            position: absolute;
+            inset: 0;
+            background: #d1d1d6;
+            border-radius: 999px;
+            transition: background 0.2s ease;
+        }
+
+        .switch .track::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        .switch input:checked + .track {
+            background: #34c759;
+        }
+
+        .switch input:checked + .track::before {
+            transform: translateX(18px);
+        }
+
+        .result {
+            background: #f8f8fc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 4px;
+        }
+
+        .primary {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .primary .value {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1d1d1f;
+            letter-spacing: -0.5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .primary .unit {
+            font-size: 15px;
+            color: #6e6e73;
+            font-weight: 500;
+        }
+
+        .rows {
+            border-top: 1px solid #e9e9ef;
+            padding-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .rows .r {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .rows .k {
+            font-size: 14px;
+            color: #6e6e73;
+        }
+
+        .rows .v {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1d1d1f;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .verdict {
+            display: inline-block;
+            margin-top: 14px;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .verdict.ok {
+            background: rgba(52, 199, 89, 0.12);
+            color: #248a3d;
+        }
+
+        .verdict.bad {
+            background: rgba(255, 59, 48, 0.10);
+            color: #d70015;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .test-banner {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .test-banner.pass { background: rgba(52, 199, 89, 0.12); color: #248a3d; }
+        .test-banner.fail { background: rgba(255, 59, 48, 0.10); color: #d70015; }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Atto 1 Calculator</h1>
+        <p class="subtitle">BYD Atto 1 Dynamic &middot; 2026 CKD</p>
+
+        <div class="segmented" role="tablist">
+            <button id="tab-charge" class="active" role="tab">Charge</button>
+            <button id="tab-trip" role="tab">Trip</button>
+        </div>
+
+        <section id="panel-charge">
+            <div class="row2">
+                <div class="field">
+                    <label for="c-cur">Current battery (%)</label>
+                    <input type="number" id="c-cur" inputmode="decimal" min="0" max="100" step="1" value="50">
+                </div>
+                <div class="field">
+                    <label for="c-tgt">Target (%)</label>
+                    <input type="number" id="c-tgt" inputmode="decimal" min="0" max="100" step="1" value="80">
+                </div>
+            </div>
+            <div class="chips" id="c-chips">
+                <button class="chip" data-tgt="80">80%</button>
+                <button class="chip" data-tgt="90">90%</button>
+                <button class="chip" data-tgt="100">100%</button>
+            </div>
+
+            <div class="field" style="margin-top:16px">
+                <label>Charger type</label>
+                <div class="segmented" style="margin-bottom:0">
+                    <button id="ch-ac" class="active">AC &middot; 6.6 kW</button>
+                    <button id="ch-dc">DC &middot; 30 kW</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="c-tariff">Electricity tariff (Rp / kWh)</label>
+                <input type="number" id="c-tariff" inputmode="decimal" min="0" step="0.1" value="1444.7">
+            </div>
+
+            <div class="result">
+                <div class="primary">
+                    <span class="value" id="c-kwh">&mdash;</span> <span class="unit">kWh from wall</span>
+                </div>
+                <div class="rows">
+                    <div class="r"><span class="k">Into battery</span><span class="v" id="c-bat">&mdash;</span></div>
+                    <div class="r"><span class="k">Range gained</span><span class="v" id="c-km">&mdash;</span></div>
+                    <div class="r"><span class="k">Estimated time</span><span class="v" id="c-time">&mdash;</span></div>
+                    <div class="r"><span class="k">Estimated cost</span><span class="v" id="c-cost">&mdash;</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-trip" class="hidden">
+            <div class="row2">
+                <div class="field">
+                    <label for="t-dist">Distance (km)</label>
+                    <input type="number" id="t-dist" inputmode="decimal" min="0" step="1" value="30">
+                </div>
+                <div class="field">
+                    <label for="t-cur">Current battery (%)</label>
+                    <input type="number" id="t-cur" inputmode="decimal" min="0" max="100" step="1" value="80">
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="t-cons">Consumption (kWh / 100 km)</label>
+                <input type="number" id="t-cons" inputmode="decimal" min="1" step="0.1" value="10.0">
+                <div class="chips" id="t-chips">
+                    <button class="chip" data-cons="9">City 9</button>
+                    <button class="chip" data-cons="11">Mixed 11</button>
+                    <button class="chip" data-cons="14">Highway 14</button>
+                </div>
+            </div>
+
+            <div class="switch-row">
+                <span>Round trip</span>
+                <label class="switch">
+                    <input type="checkbox" id="t-round">
+                    <span class="track"></span>
+                </label>
+            </div>
+
+            <div class="result">
+                <div class="primary">
+                    <span class="value" id="t-end">&mdash;</span> <span class="unit">% remaining</span>
+                </div>
+                <div class="rows">
+                    <div class="r"><span class="k">Energy used</span><span class="v" id="t-used">&mdash;</span></div>
+                    <div class="r"><span class="k">Distance</span><span class="v" id="t-dist-v">&mdash;</span></div>
+                    <div class="r"><span class="k">Range remaining</span><span class="v" id="t-endkm">&mdash;</span></div>
+                    <div class="r"><span class="k">Max range on current charge</span><span class="v" id="t-max">&mdash;</span></div>
+                </div>
+                <span class="verdict ok hidden" id="t-verdict"></span>
+            </div>
+        </section>
+
+        <footer>
+            30.08 kWh &middot; 300 km NEDC &middot; AC 6.6 kW &middot; DC 30 kW &middot; ~90% charging efficiency<br>
+            Estimates only &mdash; real consumption varies with speed, AC, and terrain.
+        </footer>
+
+        <div id="test-banner" class="test-banner hidden"></div>
+    </div>
+
+    <script>
+        const CAR = {
+            battery: 30.08,      // kWh, Atto 1 Dynamic CKD 2026
+            rangeNEDC: 300,      // km
+            acKW: 6.6,
+            dcKW: 30,
+            eff: 0.9             // charging efficiency (wall -> battery)
+        };
+        const KM_PER_PCT = CAR.rangeNEDC / 100;
+
+        function calcCharge(curPct, tgtPct, charger, tariff) {
+            const d = Math.max(0, Math.min(100, tgtPct) - Math.min(100, Math.max(0, curPct)));
+            const kWhBattery = d / 100 * CAR.battery;
+            const kWhWall = kWhBattery / CAR.eff;
+            const km = d * KM_PER_PCT;
+            const kw = charger === 'dc' ? CAR.dcKW : CAR.acKW;
+            const hours = kWhWall / kw;
+            return { deltaPct: d, kWhBattery, kWhWall, km, hours, cost: kWhWall * tariff };
+        }
+
+        function calcTrip(km, curPct, consPer100, roundTrip) {
+            const dist = roundTrip ? km * 2 : km;
+            const kWhUsed = dist * consPer100 / 100;
+            const endPct = curPct - kWhUsed / CAR.battery * 100;
+            const maxKm = curPct / 100 * CAR.battery / (consPer100 / 100);
+            return {
+                dist, kWhUsed, endPct,
+                endKm: Math.max(0, endPct) * KM_PER_PCT,
+                maxKm,
+                feasible: endPct > 0,
+                shortfallKm: endPct < 0 ? -endPct / 100 * CAR.battery / (consPer100 / 100) : 0
+            };
+        }
+
+        function fmt(n, dec) {
+            return n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        }
+
+        function fmtTime(hours) {
+            if (!isFinite(hours) || hours <= 0) return '—';
+            const h = Math.floor(hours);
+            const m = Math.round((hours - h) * 60);
+            if (h === 0) return m + ' min';
+            return h + ' h ' + m + ' min';
+        }
+
+        const rp = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+
+        const $ = id => document.getElementById(id);
+        const num = id => parseFloat($(id).value) || 0;
+        const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+        let charger = 'ac';
+
+        function saveState() {
+            const s = {
+                charger,
+                tariff: $('c-tariff').value,
+                cCur: $('c-cur').value, cTgt: $('c-tgt').value,
+                tDist: $('t-dist').value, tCur: $('t-cur').value,
+                tCons: $('t-cons').value, tRound: $('t-round').checked
+            };
+            try { localStorage.setItem('atto1-state', JSON.stringify(s)); } catch (e) {}
+        }
+
+        function loadState() {
+            try {
+                const s = JSON.parse(localStorage.getItem('atto1-state'));
+                if (!s) return;
+                if (s.charger === 'dc') setCharger('dc');
+                if (s.tariff) $('c-tariff').value = s.tariff;
+                if (s.cCur) $('c-cur').value = s.cCur;
+                if (s.cTgt) $('c-tgt').value = s.cTgt;
+                if (s.tDist) $('t-dist').value = s.tDist;
+                if (s.tCur) $('t-cur').value = s.tCur;
+                if (s.tCons) $('t-cons').value = s.tCons;
+                $('t-round').checked = !!s.tRound;
+            } catch (e) {}
+        }
+
+        function setCharger(mode) {
+            charger = mode;
+            $('ch-ac').classList.toggle('active', mode === 'ac');
+            $('ch-dc').classList.toggle('active', mode === 'dc');
+        }
+
+        function renderCharge() {
+            const r = calcCharge(num('c-cur'), num('c-tgt'), charger, num('c-tariff'));
+            if (r.deltaPct <= 0) {
+                $('c-kwh').textContent = '0';
+                $('c-bat').textContent = '0 kWh';
+                $('c-km').textContent = '0 km';
+                $('c-time').textContent = '—';
+                $('c-cost').textContent = rp.format(0);
+            } else {
+                $('c-kwh').textContent = fmt(r.kWhWall, 2);
+                $('c-bat').textContent = fmt(r.kWhBattery, 2) + ' kWh';
+                $('c-km').textContent = fmt(r.km, 0) + ' km';
+                $('c-time').textContent = fmtTime(r.hours);
+                $('c-cost').textContent = rp.format(r.cost);
+            }
+            document.querySelectorAll('#c-chips .chip').forEach(ch =>
+                ch.classList.toggle('active', parseFloat(ch.dataset.tgt) === num('c-tgt')));
+            saveState();
+        }
+
+        function renderTrip() {
+            const r = calcTrip(num('t-dist'), clamp(num('t-cur'), 0, 100), num('t-cons'), $('t-round').checked);
+            $('t-end').textContent = fmt(Math.max(0, r.endPct), 0);
+            $('t-used').textContent = fmt(r.kWhUsed, 2) + ' kWh';
+            $('t-dist-v').textContent = fmt(r.dist, 0) + ' km';
+            $('t-endkm').textContent = fmt(r.endKm, 0) + ' km';
+            $('t-max').textContent = fmt(r.maxKm, 0) + ' km';
+            const v = $('t-verdict');
+            v.classList.remove('hidden');
+            if (r.feasible) {
+                v.className = 'verdict ok';
+                v.textContent = 'Trip is fine — ' + fmt(r.endPct, 0) + '% left at arrival';
+            } else {
+                v.className = 'verdict bad';
+                v.textContent = 'Not enough charge — short by ~' + fmt(r.shortfallKm, 0) + ' km';
+            }
+            document.querySelectorAll('#t-chips .chip').forEach(ch =>
+                ch.classList.toggle('active', parseFloat(ch.dataset.cons) === num('t-cons')));
+            saveState();
+        }
+
+        $('tab-charge').addEventListener('click', () => {
+            $('panel-charge').classList.remove('hidden');
+            $('panel-trip').classList.add('hidden');
+            $('tab-charge').classList.add('active');
+            $('tab-trip').classList.remove('active');
+        });
+        $('tab-trip').addEventListener('click', () => {
+            $('panel-trip').classList.remove('hidden');
+            $('panel-charge').classList.add('hidden');
+            $('tab-trip').classList.add('active');
+            $('tab-charge').classList.remove('active');
+        });
+
+        $('ch-ac').addEventListener('click', () => { setCharger('ac'); renderCharge(); });
+        $('ch-dc').addEventListener('click', () => { setCharger('dc'); renderCharge(); });
+
+        document.querySelectorAll('#c-chips .chip').forEach(ch =>
+            ch.addEventListener('click', () => { $('c-tgt').value = ch.dataset.tgt; renderCharge(); }));
+        document.querySelectorAll('#t-chips .chip').forEach(ch =>
+            ch.addEventListener('click', () => { $('t-cons').value = ch.dataset.cons; renderTrip(); }));
+
+        ['c-cur', 'c-tgt', 'c-tariff'].forEach(id => $(id).addEventListener('input', renderCharge));
+        ['t-dist', 't-cur', 't-cons', 't-round'].forEach(id =>
+            $(id).addEventListener('input', renderTrip));
+
+        loadState();
+        renderCharge();
+        renderTrip();
+
+        function runTests() {
+            const approx = (a, b, eps = 1e-4) => Math.abs(a - b) <= eps * Math.max(1, Math.abs(a), Math.abs(b));
+            const checks = [];
+            const t = (name, fn) => { try { fn(); checks.push('PASS  ' + name); } catch (e) { checks.push('FAIL  ' + name + ' — ' + e.message); } };
+            const assert = (c, msg) => { if (!c) throw new Error(msg); };
+
+            t('charge 50→80% AC: kWh into battery', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.7);
+                assert(approx(r.kWhBattery, 9.024), 'got ' + r.kWhBattery);
+            });
+            t('charge 50→80% AC: kWh from wall (90% eff)', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.7);
+                assert(approx(r.kWhWall, 10.0267), 'got ' + r.kWhWall);
+            });
+            t('charge 50→80%: range gained 90 km', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.7);
+                assert(approx(r.km, 90), 'got ' + r.km);
+            });
+            t('charge time AC = wall kWh / 6.6 kW', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.7);
+                assert(approx(r.hours, 1.5192), 'got ' + r.hours);
+            });
+            t('charge cost = wall kWh × tariff', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.7);
+                assert(approx(r.cost, 14484.6, 1e-3), 'got ' + r.cost);
+            });
+            t('target ≤ current → zero delta', () => {
+                const r = calcCharge(80, 50, 'ac', 1444.7);
+                assert(r.deltaPct === 0 && r.kWhWall === 0, 'got ' + r.deltaPct);
+            });
+            t('trip 100 km @10 kWh/100km from 80% → 46.76%', () => {
+                const r = calcTrip(100, 80, 10, false);
+                assert(approx(r.kWhUsed, 10), 'used ' + r.kWhUsed);
+                assert(approx(r.endPct, 46.7553), 'end ' + r.endPct);
+                assert(r.feasible, 'should be feasible');
+            });
+            t('trip max range from 80% @10 kWh/100km ≈ 240.64 km', () => {
+                const r = calcTrip(1, 80, 10, false);
+                assert(approx(r.maxKm, 240.64), 'got ' + r.maxKm);
+            });
+        t('round trip doubles distance', () => {
+            const one = calcTrip(100, 80, 10, false);
+            const both = calcTrip(100, 80, 10, true);
+            assert(approx(both.kWhUsed, one.kWhUsed * 2), 'got ' + both.kWhUsed);
+            assert(approx(both.endPct, 13.5106), 'end ' + both.endPct);
+            assert(both.feasible, 'round trip should still be feasible');
+        });
+            t('trip beyond range → infeasible with shortfall', () => {
+                const r = calcTrip(500, 100, 10, false);
+                assert(!r.feasible && r.shortfallKm > 0, 'shortfall ' + r.shortfallKm);
+            });
+
+            const failed = checks.filter(c => c.startsWith('FAIL'));
+            return { ok: failed.length === 0, text: checks.join('\n') };
+        }
+
+        if (new URLSearchParams(location.search).get('test') === '1') {
+            const res = runTests();
+            const b = $('test-banner');
+            b.classList.remove('hidden');
+            b.classList.add(res.ok ? 'pass' : 'fail');
+            b.textContent = res.text;
+        }
+    </script>
+</body>
+</html>
