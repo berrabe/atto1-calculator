@@ -562,7 +562,6 @@
                     <div class="field">
                         <label for="t-cur" data-i18n="curBat"></label>
                         <input type="number" id="t-cur" inputmode="decimal" min="0" max="100" step="1" value="80">
-                        <div class="hint" id="t-max-hint"></div>
                     </div>
                 </div>
             </div>
@@ -599,6 +598,7 @@
                     <div class="r"><span class="k" data-i18n="energyUsed"></span><span class="v" id="t-used">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="distance"></span><span class="v" id="t-dist-v">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeRemain"></span><span class="v" id="t-endkm">&mdash;</span></div>
+                    <div class="r"><span class="k" id="t-max-lbl"></span><span class="v" id="t-max-v"></span></div>
                 </div>
                 <span class="verdict ok hidden" id="t-verdict"></span>
             </div>
@@ -618,6 +618,8 @@
             rangeNEDC: 300,      // km
             acKW: 6.6,
             dcKW: 30,
+            // ponytail: DC taper estimated from owner observation (flat 30 kW to ~85%, 16 kW @ 90%); same shape as EVKX-measured Seagull 38 kWh curve. Upgrade when a measured 30.08 kWh curve exists.
+            dcCurve: [[0, 20], [10, 30], [85, 30], [90, 16], [95, 10], [100, 4]],
             eff: 0.9             // charging efficiency (wall -> battery)
         };
         const DEFAULTS = {
@@ -630,7 +632,7 @@
 
         const I18N = {
             en: {
-                about: 'About this app',                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
+                about: 'About this app',                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. DC charge time models the BMS taper above ~85% (owner-measured curve). Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
                 charge: 'Charge', trip: 'Trip',
                 descCharge: 'Calculate the energy, time, and cost to charge from your current battery level to a target — and the range that adds.',
                 descTrip: 'Estimate how much battery a drive of a given distance will use, and what remains when you arrive.',
@@ -646,7 +648,7 @@
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
                 energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
-                rangeRemain: 'Range remaining (NEDC)', maxRangeNow: km => `≈ ${km} km available right now (full drain)`,
+                rangeRemain: 'Range remaining (NEDC)', untilEmpty: cons => `Until empty (@ ${cons} kWh/100km)`,
                 okVerdict: p => `Trip is fine — ${p}% left at arrival`,
                 badVerdict: p => `Not enough charge — short by ~${p} km`,
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
@@ -657,7 +659,7 @@
             },
             id: {
                 about: 'Tentang app ini',
-                aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
+                aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Waktu DC memperhitungkan taper BMS di atas ~85% (kurva hasil pengamatan pemilik). Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
                 charge: 'Isi Daya', trip: 'Perjalanan',
                 descCharge: 'Hitung energi, waktu, dan biaya untuk mengisi dari level baterai sekarang ke target — plus range yang didapat.',
                 descTrip: 'Perkirakan berapa baterai terpakai untuk jarak tertentu, dan sisa saat tiba.',
@@ -673,7 +675,7 @@
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
                 energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
-                rangeRemain: 'Range tersisa (NEDC)', maxRangeNow: km => `≈ ${km} km tersedia sekarang (sampai 0%)`,
+                rangeRemain: 'Range tersisa (NEDC)', untilEmpty: cons => `Sampai habis (@ ${cons} kWh/100km)`,
                 okVerdict: p => `Perjalanan aman — sisa ${p}% saat tiba`,
                 badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
@@ -684,14 +686,34 @@
             }
         };
 
+        const dcKWat = pct => {
+            const c = CAR.dcCurve;
+            for (let i = 1; i < c.length; i++) {
+                if (pct <= c[i][0]) {
+                    const [s0, w0] = c[i - 1], [s1, w1] = c[i];
+                    return w0 + (w1 - w0) * (pct - s0) / (s1 - s0);
+                }
+            }
+            return c[c.length - 1][1];
+        };
+
         function calcCharge(curPct, tgtPct, charger, tariff, pbjtPct, fee) {
             const d = Math.max(0, Math.min(100, tgtPct) - Math.min(100, Math.max(0, curPct)));
             const kWhBattery = d / 100 * CAR.battery;
             const kWhWall = kWhBattery / CAR.eff;
             const km = d * KM_PER_PCT;
-            const kw = charger === 'dc' ? CAR.dcKW : CAR.acKW;
-            const hours = kWhWall / kw;
             const isDC = charger === 'dc';
+            const a = Math.min(100, Math.max(0, curPct));
+            let hours;
+            if (isDC) {
+                hours = 0;
+                for (let s = a; s < a + d; s += 5) {
+                    const e = Math.min(a + d, s + 5);
+                    hours += (e - s) / 100 * CAR.battery / dcKWat((s + e) / 2);
+                }
+            } else {
+                hours = kWhWall / CAR.acKW;
+            }
             const energy = kWhWall * tariff;
             const pbjt = isDC ? energy * (pbjtPct || 0) / 100 : 0;
             const feeCost = isDC ? (fee || 0) : 0;
@@ -844,7 +866,8 @@
             $('t-used').textContent = fmt(r.kWhUsed, 2) + ' kWh';
             $('t-dist-v').textContent = fmt(r.dist, 0) + ' km';
             $('t-endkm').textContent = fmt(r.endKm, 0) + ' km';
-            $('t-max-hint').textContent = T('maxRangeNow')(fmt(r.maxKm, 0));
+            $('t-max-lbl').textContent = T('untilEmpty')(String(num('t-cons')));
+            $('t-max-v').textContent = '≈ ' + fmt(r.maxKm, 0) + ' km';
             const v = $('t-verdict');
             v.classList.remove('hidden');
             if (r.feasible) {
@@ -926,6 +949,14 @@
             t('charge time AC = wall kWh / 6.6 kW', () => {
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0);
                 assert(approx(r.hours, 1.5192), 'got ' + r.hours);
+            });
+            t('charge time DC 30→80% ≈ 30 min (flat curve, matches BYD claim)', () => {
+                const r = calcCharge(30, 80, 'dc', 2466.78, 0, 0);
+                assert(approx(r.hours, 0.5013), 'got ' + r.hours);
+            });
+            t('charge time DC 20→100% ≈ 63 min (BMS taper >85%)', () => {
+                const r = calcCharge(20, 100, 'dc', 2466.78, 0, 0);
+                assert(r.hours > 1.0 && r.hours < 1.17, 'got ' + r.hours);
             });
             t('charge cost AC = wall kWh × tariff, no fee/tax', () => {
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0, 0);
