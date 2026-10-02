@@ -392,6 +392,24 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .rows .r.cost-row {
+            border-top: 1px solid #e0e0e6;
+            margin-top: 4px;
+            padding-top: 12px;
+        }
+
+        .rows .r.cost-row .k {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .rows .r.cost-row .v {
+            font-size: 17px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
         .verdict {
             display: inline-block;
             margin-top: 14px;
@@ -496,7 +514,7 @@
                     <label for="c-pbjt" data-i18n="pbjtLbl"></label>
                     <input type="number" id="c-pbjt" inputmode="decimal" min="0" max="100" step="any" value="8">
                 </div>
-                <button type="button" class="linkish hidden" id="c-fee-add">+ <span data-i18n="svcFee"></span></button>
+                <button type="button" class="linkish hidden" id="c-fee-add"><span id="c-fee-sign">+</span> <span data-i18n="svcFee"></span></button>
                 <div class="field hidden" id="c-fee-field">
                     <label for="c-fee" data-i18n="feeLbl"></label>
                     <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="0">
@@ -518,7 +536,7 @@
                     <div class="r hidden" id="c-energy-row"><span class="k" data-i18n="energyCost"></span><span class="v" id="c-energy-v">&mdash;</span></div>
                     <div class="r hidden" id="c-pbjt-row"><span class="k" data-i18n="pbjtLbl"></span><span class="v" id="c-pbjt-v">&mdash;</span></div>
                     <div class="r hidden" id="c-fee-row"><span class="k" data-i18n="svcFee"></span><span class="v" id="c-fee-v">&mdash;</span></div>
-                    <div class="r"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
+                    <div class="r cost-row"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
                 </div>
             </div>
         </section>
@@ -764,7 +782,8 @@
         function syncFeeVisibility() {
             const isDC = state.charger === 'dc';
             const showField = isDC && (feeRevealed || state.feeDC > 0);
-            $('c-fee-add').classList.toggle('hidden', !isDC || showField);
+            $('c-fee-add').classList.toggle('hidden', !isDC);
+            $('c-fee-sign').textContent = showField ? '−' : '+';
             $('c-fee-field').classList.toggle('hidden', !showField);
         }
 
@@ -846,7 +865,15 @@
 
         $('ch-ac').addEventListener('click', () => { setCharger('ac'); renderCharge(); });
         $('ch-dc').addEventListener('click', () => { setCharger('dc'); renderCharge(); });
-        $('c-fee-add').addEventListener('click', () => { feeRevealed = true; syncFeeVisibility(); });
+        $('c-fee-add').addEventListener('click', () => {
+            feeRevealed = !feeRevealed;
+            if (!feeRevealed) {
+                state.feeDC = 0;
+                $('c-fee').value = 0;
+            }
+            syncFeeVisibility();
+            renderCharge();
+        });
 
         $('lang-en').addEventListener('click', () => applyLang('en'));
         $('lang-id').addEventListener('click', () => applyLang('id'));
