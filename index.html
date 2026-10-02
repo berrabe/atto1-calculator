@@ -269,11 +269,9 @@
         details.box summary {
             list-style: none;
             padding: 4px 2px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: #667eea;
+            font-size: 11px;
+            font-weight: 500;
+            color: #8e8e93;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -471,9 +469,13 @@
                     <label for="c-tariff" data-i18n="tariffLbl"></label>
                     <input type="number" id="c-tariff" inputmode="decimal" min="0" step="any" value="1444.7">
                 </div>
+                <div class="field hidden" id="c-pbjt-field">
+                    <label for="c-pbjt" data-i18n="pbjtLbl"></label>
+                    <input type="number" id="c-pbjt" inputmode="decimal" min="0" max="100" step="any" value="8">
+                </div>
                 <div class="field hidden" id="c-fee-field">
                     <label for="c-fee" data-i18n="feeLbl"></label>
-                    <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="25000">
+                    <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="0">
                 </div>
                 <details class="box">
                     <summary data-i18n="ratesQ"></summary>
@@ -489,6 +491,8 @@
                     <div class="r"><span class="k" data-i18n="intoBat"></span><span class="v" id="c-bat">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeGained"></span><span class="v" id="c-km">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="estTime"></span><span class="v" id="c-time">&mdash;</span></div>
+                    <div class="r hidden" id="c-energy-row"><span class="k" data-i18n="energyCost"></span><span class="v" id="c-energy-v">&mdash;</span></div>
+                    <div class="r hidden" id="c-pbjt-row"><span class="k" data-i18n="pbjtLbl"></span><span class="v" id="c-pbjt-v">&mdash;</span></div>
                     <div class="r hidden" id="c-fee-row"><span class="k" data-i18n="svcFee"></span><span class="v" id="c-fee-v">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
                 </div>
@@ -566,8 +570,9 @@
         };
         const DEFAULTS = {
             acTariff: 1444.70,   // PLN R-1/TR 1.300-2.200 VA, Q3 2026
-            dcTariff: 2466.78,   // ESDM 'Layanan Khusus' SPKLU rate
-            dcFee: 25000         // Fast Charging service fee ceiling, Kepmen ESDM 182.K/2023
+            dcTariff: 2466.78,   // ESDM 'Layanan Khusus' SPKLU rate (verified: 6 invoices Sep 2026)
+            dcPbjt: 8,           // PBJT-TL %, varies 0-9 per region/transaction
+            dcFee: 0             // per-session service fee; PLN SPKLU = 0, third parties may charge
         };
         const KM_PER_PCT = CAR.rangeNEDC / 100;
 
@@ -586,12 +591,13 @@
                 chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
                 fromWall: 'kWh from wall', intoBat: 'Into battery', rangeGained: 'Range gained',
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
+                energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
                 rangeRemain: 'Range remaining', maxRange: 'Max range on current charge',
                 okVerdict: p => `Trip is fine — ${p}% left at arrival`,
                 badVerdict: p => `Not enough charge — short by ~${p} km`,
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
-                srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (day & night) + Fast Charging service fee, max Rp25.000/session (Kepmen ESDM 182.K/MEM.S/2023). Some SPKLU waive the fee; third-party operators (Voltron etc.) set their own rates — edit manually.',
+                srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (verified from 6 PLN invoices, Sep 2026). PBJT-TL is a local electricity tax that varies 0–9% per region/transaction (your 6 PLN invoices: 0, 4, 6, 8, 8, 9%). Service fee: PLN SPKLU = Rp0; third-party operators (Voltron etc.) set their own rates — edit manually.',
                 footer1: '30.08 kWh · 300 km NEDC · AC 6.6 kW · DC 30 kW · ~90% charging efficiency',
                 footer2: 'Estimates only — real consumption varies with speed, AC, and terrain.',
                 hour: 'h', min: 'min'
@@ -610,27 +616,31 @@
                 chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
                 fromWall: 'kWh dari dinding', intoBat: 'Ke baterai', rangeGained: 'Range didapat',
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
+                energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
                 rangeRemain: 'Range tersisa', maxRange: 'Max range dengan charge sekarang',
                 okVerdict: p => `Perjalanan aman — sisa ${p}% saat tiba`,
                 badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
-                srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (siang/malam sama) + biaya layanan Fast Charging maks Rp25.000/sesi (Kepmen ESDM 182.K/MEM.S/2023). Sebagian SPKLU membebaskan biaya ini; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
+                srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (terverifikasi dari 6 invoice PLN, Sep 2026). PBJT-TL adalah pajak daerah atas tenaga listrik, bervariasi 0–9% per daerah/transaksi (6 invoice PLN kamu: 0, 4, 6, 8, 8, 9%). Biaya layanan: SPKLU PLN = Rp0; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
                 footer1: '30,08 kWh · 300 km NEDC · AC 6,6 kW · DC 30 kW · efisiensi charging ~90%',
                 footer2: 'Hanya estimasi — konsumsi nyata dipengaruhi kecepatan, AC, dan medan.',
                 hour: 'j', min: 'mnt'
             }
         };
 
-        function calcCharge(curPct, tgtPct, charger, tariff, fee) {
+        function calcCharge(curPct, tgtPct, charger, tariff, pbjtPct, fee) {
             const d = Math.max(0, Math.min(100, tgtPct) - Math.min(100, Math.max(0, curPct)));
             const kWhBattery = d / 100 * CAR.battery;
             const kWhWall = kWhBattery / CAR.eff;
             const km = d * KM_PER_PCT;
             const kw = charger === 'dc' ? CAR.dcKW : CAR.acKW;
             const hours = kWhWall / kw;
-            const feeCost = charger === 'dc' ? (fee || 0) : 0;
-            return { deltaPct: d, kWhBattery, kWhWall, km, hours, fee: feeCost, cost: kWhWall * tariff + feeCost };
+            const isDC = charger === 'dc';
+            const energy = kWhWall * tariff;
+            const pbjt = isDC ? energy * (pbjtPct || 0) / 100 : 0;
+            const feeCost = isDC ? (fee || 0) : 0;
+            return { deltaPct: d, kWhBattery, kWhWall, km, hours, energy, pbjt, fee: feeCost, cost: energy + pbjt + feeCost };
         }
 
         function calcTrip(km, curPct, consPer100, roundTrip) {
@@ -654,7 +664,8 @@
         const state = {
             lang: 'en',
             charger: 'ac',
-            tariffAC: DEFAULTS.acTariff, tariffDC: DEFAULTS.dcTariff, feeDC: DEFAULTS.dcFee
+            tariffAC: DEFAULTS.acTariff, tariffDC: DEFAULTS.dcTariff,
+            pbjtDC: DEFAULTS.dcPbjt, feeDC: DEFAULTS.dcFee
         };
         const T = key => I18N[state.lang][key];
 
@@ -689,7 +700,8 @@
         function saveState() {
             const s = {
                 lang: state.lang, charger: state.charger,
-                tariffAC: state.tariffAC, tariffDC: state.tariffDC, feeDC: state.feeDC,
+                tariffAC: state.tariffAC, tariffDC: state.tariffDC,
+                pbjtDC: state.pbjtDC, feeDC: state.feeDC,
                 cCur: $('c-cur').value, cTgt: $('c-tgt').value,
                 tDist: $('t-dist').value, tCur: $('t-cur').value,
                 tCons: $('t-cons').value, tRound: $('t-round').checked
@@ -705,6 +717,7 @@
                     if (s.charger) state.charger = s.charger;
                     if (s.tariffAC) state.tariffAC = s.tariffAC;
                     if (s.tariffDC) state.tariffDC = s.tariffDC;
+                    if (s.pbjtDC !== undefined) state.pbjtDC = s.pbjtDC;
                     if (s.feeDC !== undefined) state.feeDC = s.feeDC;
                     if (s.cCur) $('c-cur').value = s.cCur;
                     if (s.cTgt) $('c-tgt').value = s.cTgt;
@@ -723,21 +736,27 @@
             $('ch-ac').classList.toggle('active', mode === 'ac');
             $('ch-dc').classList.toggle('active', mode === 'dc');
             $('c-tariff').value = mode === 'ac' ? state.tariffAC : state.tariffDC;
+            $('c-pbjt').value = state.pbjtDC;
             $('c-fee').value = state.feeDC;
+            $('c-pbjt-field').classList.toggle('hidden', mode !== 'dc');
             $('c-fee-field').classList.toggle('hidden', mode !== 'dc');
+            $('c-energy-row').classList.toggle('hidden', mode !== 'dc');
+            $('c-pbjt-row').classList.toggle('hidden', mode !== 'dc');
             $('c-fee-row').classList.toggle('hidden', mode !== 'dc');
             $('c-source').textContent = T(mode === 'ac' ? 'srcAC' : 'srcDC');
         }
 
         function renderCharge() {
             if (state.charger === 'ac') state.tariffAC = num('c-tariff');
-            else { state.tariffDC = num('c-tariff'); state.feeDC = num('c-fee'); }
-            const r = calcCharge(num('c-cur'), num('c-tgt'), state.charger, num('c-tariff'), num('c-fee'));
+            else { state.tariffDC = num('c-tariff'); state.pbjtDC = num('c-pbjt'); state.feeDC = num('c-fee'); }
+            const r = calcCharge(num('c-cur'), num('c-tgt'), state.charger, num('c-tariff'), num('c-pbjt'), num('c-fee'));
             if (r.deltaPct <= 0) {
                 $('c-kwh').textContent = '0';
                 $('c-bat').textContent = '0 kWh';
                 $('c-km').textContent = '0 km';
                 $('c-time').textContent = '—';
+                $('c-energy-v').textContent = rp.format(0);
+                $('c-pbjt-v').textContent = rp.format(0);
                 $('c-fee-v').textContent = rp.format(0);
                 $('c-cost').textContent = rp.format(0);
             } else {
@@ -745,6 +764,8 @@
                 $('c-bat').textContent = fmt(r.kWhBattery, 2) + ' kWh';
                 $('c-km').textContent = fmt(r.km, 0) + ' km';
                 $('c-time').textContent = fmtTime(r.hours);
+                $('c-energy-v').textContent = rp.format(r.energy);
+                $('c-pbjt-v').textContent = rp.format(r.pbjt);
                 $('c-fee-v').textContent = rp.format(r.fee);
                 $('c-cost').textContent = rp.format(r.cost);
             }
@@ -798,7 +819,7 @@
         document.querySelectorAll('#t-chips .chip').forEach(ch =>
             ch.addEventListener('click', () => { $('t-cons').value = ch.dataset.cons; renderTrip(); }));
 
-        ['c-cur', 'c-tgt', 'c-tariff', 'c-fee'].forEach(id => $(id).addEventListener('input', renderCharge));
+        ['c-cur', 'c-tgt', 'c-tariff', 'c-pbjt', 'c-fee'].forEach(id => $(id).addEventListener('input', renderCharge));
         ['t-dist', 't-cur', 't-cons', 't-round'].forEach(id =>
             $(id).addEventListener('input', renderTrip));
 
@@ -833,23 +854,32 @@
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0);
                 assert(approx(r.hours, 1.5192), 'got ' + r.hours);
             });
-            t('charge cost AC = wall kWh × tariff, no fee', () => {
-                const r = calcCharge(50, 80, 'ac', 1444.70, 0);
-                assert(r.fee === 0, 'fee ' + r.fee);
+            t('charge cost AC = wall kWh × tariff, no fee/tax', () => {
+                const r = calcCharge(50, 80, 'ac', 1444.70, 0, 0);
+                assert(r.pbjt === 0 && r.fee === 0, 'pbjt/fee ' + r.pbjt + '/' + r.fee);
                 assert(approx(r.cost, 14484.6, 1e-3), 'got ' + r.cost);
             });
-            t('charge cost DC = wall kWh × tariff + fee', () => {
-                const r = calcCharge(50, 80, 'dc', 2466.78, 25000);
-                assert(approx(r.fee, 25000), 'fee ' + r.fee);
-                assert(approx(r.cost, 49733.6, 1e-3), 'got ' + r.cost);
+            t('DC cost = energy + PBJT 8% + fee (matches invoices)', () => {
+                const r = calcCharge(50, 80, 'dc', 2466.78, 8, 0);
+                assert(approx(r.energy, 24733.6, 1e-3), 'energy ' + r.energy);
+                assert(approx(r.pbjt, 1978.7, 1e-3), 'pbjt ' + r.pbjt);
+                assert(approx(r.cost, 26712.3, 1e-3), 'got ' + r.cost);
             });
-            t('DC fee can be waived (0)', () => {
-                const r = calcCharge(50, 80, 'dc', 2466.78, 0);
+            t('DC service fee applies when set (3rd-party SPKLU)', () => {
+                const r = calcCharge(50, 80, 'dc', 2466.78, 8, 25000);
+                assert(approx(r.cost, 51712.3, 1e-3), 'got ' + r.cost);
+            });
+            t('DC PBJT can be 0 (some invoices)', () => {
+                const r = calcCharge(50, 80, 'dc', 2466.78, 0, 0);
                 assert(approx(r.cost, 24733.6, 1e-3), 'got ' + r.cost);
             });
             t('target ≤ current → zero delta', () => {
-                const r = calcCharge(80, 50, 'ac', 1444.70, 0);
+                const r = calcCharge(80, 50, 'ac', 1444.70, 0, 0);
                 assert(r.deltaPct === 0 && r.kWhWall === 0, 'got ' + r.deltaPct);
+            });
+            t('regression: real invoice 11400401 — 14.452 kWh @2466.78 + PBJT 8% = Rp38.502', () => {
+                const r = calcCharge(0, 43.2447, 'dc', 2466.78, 8, 0);
+                assert(approx(r.cost, 38501.9, 1e-3), 'got ' + r.cost);
             });
             t('trip 100 km @10 kWh/100km from 80% → 46.76%', () => {
                 const r = calcTrip(100, 80, 10, false);
