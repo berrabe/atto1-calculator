@@ -392,6 +392,12 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .rows .r.divided {
+            border-top: 1px solid #e0e0e6;
+            margin-top: 4px;
+            padding-top: 12px;
+        }
+
         .rows .r.cost-row {
             border-top: 1px solid #e0e0e6;
             margin-top: 4px;
@@ -516,8 +522,7 @@
                 </div>
                 <button type="button" class="linkish hidden" id="c-fee-add"><span id="c-fee-sign">+</span> <span data-i18n="svcFee"></span></button>
                 <div class="field hidden" id="c-fee-field">
-                    <label for="c-fee" data-i18n="feeLbl"></label>
-                    <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="0">
+                    <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="0" aria-label="Service fee (Rp)">
                 </div>
                 <details class="box">
                     <summary data-i18n="ratesQ"></summary>
@@ -533,7 +538,7 @@
                     <div class="r"><span class="k" data-i18n="intoBat"></span><span class="v" id="c-bat">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeGained"></span><span class="v" id="c-km">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="estTime"></span><span class="v" id="c-time">&mdash;</span></div>
-                    <div class="r hidden" id="c-energy-row"><span class="k" data-i18n="energyCost"></span><span class="v" id="c-energy-v">&mdash;</span></div>
+                    <div class="r divided hidden" id="c-energy-row"><span class="k" data-i18n="energyCost"></span><span class="v" id="c-energy-v">&mdash;</span></div>
                     <div class="r hidden" id="c-pbjt-row"><span class="k" data-i18n="pbjtLbl"></span><span class="v" id="c-pbjt-v">&mdash;</span></div>
                     <div class="r hidden" id="c-fee-row"><span class="k" data-i18n="svcFee"></span><span class="v" id="c-fee-v">&mdash;</span></div>
                     <div class="r cost-row"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
@@ -628,7 +633,7 @@
                 gBattery: 'Battery', gCharging: 'Charging', gTariff: 'Tariff',
                 gCons: 'Consumption', gOpts: 'Options',
                 curPct: 'Current (%)', tgtPct: 'Target (%)', curBat: 'Current battery (%)',
-                tariffLbl: 'Electricity tariff (Rp / kWh)', feeLbl: 'Service fee per session (Rp)',
+                tariffLbl: 'Electricity tariff (Rp / kWh)',
                 ratesQ: 'Where are these rates from?',
                 chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Distance (km)', distRT: 'Distance (round trip)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
@@ -655,7 +660,7 @@
                 gBattery: 'Baterai', gCharging: 'Pengisian', gTariff: 'Tarif',
                 gCons: 'Konsumsi', gOpts: 'Opsi',
                 curPct: 'Saat ini (%)', tgtPct: 'Target (%)', curBat: 'Baterai saat ini (%)',
-                tariffLbl: 'Tarif listrik (Rp / kWh)', feeLbl: 'Biaya layanan per sesi (Rp)',
+                tariffLbl: 'Tarif listrik (Rp / kWh)',
                 ratesQ: 'Dari mana tarif ini?',
                 chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Jarak (km)', distRT: 'Jarak (pulang-pergi)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
