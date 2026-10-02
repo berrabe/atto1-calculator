@@ -512,6 +512,10 @@
                     <button id="ch-ac" class="active" data-i18n="chargerAC"></button>
                     <button id="ch-dc" data-i18n="chargerDC"></button>
                 </div>
+                <details class="box hidden" id="curve-box">
+                    <summary data-i18n="curveQ"></summary>
+                    <div class="box-body" id="curve-source"></div>
+                </details>
             </div>
 
             <div class="group">
@@ -632,7 +636,7 @@
 
         const I18N = {
             en: {
-                about: 'About this app',                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. DC charge time models the BMS taper above ~85% (owner-measured curve). Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
+                about: 'About this app',                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
                 charge: 'Charge', trip: 'Trip',
                 descCharge: 'Calculate the energy, time, and cost to charge from your current battery level to a target — and the range that adds.',
                 descTrip: 'Estimate how much battery a drive of a given distance will use, and what remains when you arrive.',
@@ -641,6 +645,7 @@
                 curPct: 'Current (%)', tgtPct: 'Target (%)', curBat: 'Current battery (%)',
                 tariffLbl: 'Electricity tariff (Rp / kWh)',
                 ratesQ: 'Where are these rates from?',
+                curveQ: 'Why does DC slow down near full?',
                 chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Distance (km)', distRT: 'Distance (round trip)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
                 chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
@@ -653,13 +658,14 @@
                 badVerdict: p => `Not enough charge — short by ~${p} km`,
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
                 srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (verified from 6 PLN invoices, Sep 2026). PBJT-TL is a local electricity tax that varies 0–9% per region/transaction (your 6 PLN invoices: 0, 4, 6, 8, 8, 9%). Service fee: PLN SPKLU = Rp0; third-party operators (Voltron etc.) set their own rates — edit manually.',
+                srcCurve: 'DC: BMS taper, by design. To ~85% the pack accepts the full 30 kW (BYD claims 30–80% in 30 min). Above that the BMS lowers current to protect the cells — owner-measured on this car: 30 kW until ~85%, 16 kW @ 90%, then down to ~4 kW at 100%. Same curve shape as EVKX’s measurement of the 38 kWh Seagull (same car, bigger pack). Time is integrated from this curve; energy and cost are unaffected.',
                 footer1: '30.08 kWh · 300 km NEDC · AC 6.6 kW · DC 30 kW · ~90% charging efficiency',
                 footer2: 'Estimates only — real consumption varies with speed, AC, and terrain.',
                 hour: 'h', min: 'min'
             },
             id: {
                 about: 'Tentang app ini',
-                aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Waktu DC memperhitungkan taper BMS di atas ~85% (kurva hasil pengamatan pemilik). Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
+                aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
                 charge: 'Isi Daya', trip: 'Perjalanan',
                 descCharge: 'Hitung energi, waktu, dan biaya untuk mengisi dari level baterai sekarang ke target — plus range yang didapat.',
                 descTrip: 'Perkirakan berapa baterai terpakai untuk jarak tertentu, dan sisa saat tiba.',
@@ -668,6 +674,7 @@
                 curPct: 'Saat ini (%)', tgtPct: 'Target (%)', curBat: 'Baterai saat ini (%)',
                 tariffLbl: 'Tarif listrik (Rp / kWh)',
                 ratesQ: 'Dari mana tarif ini?',
+                curveQ: 'Kenapa DC melambat mendekati penuh?',
                 chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Jarak (km)', distRT: 'Jarak (pulang-pergi)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
                 chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
@@ -680,6 +687,7 @@
                 badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
                 srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (terverifikasi dari 6 invoice PLN, Sep 2026). PBJT-TL adalah pajak daerah atas tenaga listrik, bervariasi 0–9% per daerah/transaksi (6 invoice PLN kamu: 0, 4, 6, 8, 8, 9%). Biaya layanan: SPKLU PLN = Rp0; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
+                srcCurve: 'DC: taper BMS, memang disengaja. Sampai ~85% baterai masih menerima 30 kW penuh (klaim BYD: 30–80% dalam 30 menit). Di atas itu BMS menurunkan arus untuk melindungi sel — hasil pengamatan pemilik mobil ini: 30 kW sampai ~85%, 16 kW @ 90%, lalu turun ke ~4 kW di 100%. Bentuk kurvanya sama dengan pengukuran EVKX untuk Seagull 38 kWh (mobil yang sama, baterai lebih besar). Waktu dihitung dari kurva ini; energi dan biaya tidak terpengaruh.',
                 footer1: '30,08 kWh · 300 km NEDC · AC 6,6 kW · DC 30 kW · efisiensi charging ~90%',
                 footer2: 'Hanya estimasi — konsumsi nyata dipengaruhi kecepatan, AC, dan medan.',
                 hour: 'j', min: 'mnt'
@@ -769,6 +777,8 @@
             $('lang-en').classList.toggle('active', state.lang === 'en');
             $('lang-id').classList.toggle('active', state.lang === 'id');
             $('c-source').textContent = T(state.charger === 'ac' ? 'srcAC' : 'srcDC');
+            $('curve-source').textContent = T('srcCurve');
+            $('curve-box').classList.toggle('hidden', state.charger !== 'dc');
             renderCharge();
             renderTrip();
             saveState();
@@ -830,6 +840,8 @@
             $('c-pbjt-row').classList.toggle('hidden', mode !== 'dc');
             syncFeeVisibility();
             $('c-source').textContent = T(mode === 'ac' ? 'srcAC' : 'srcDC');
+            $('curve-source').textContent = T('srcCurve');
+            $('curve-box').classList.toggle('hidden', mode !== 'dc');
         }
 
         function renderCharge() {
