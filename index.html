@@ -894,6 +894,8 @@
         setCharger(state.charger);
         applyLang(state.lang);
 
+        if (new URLSearchParams(location.search).get('tab') === 'trip') $('tab-trip').click();
+
         function runTests() {
             const approx = (a, b, eps = 1e-4) => Math.abs(a - b) <= eps * Math.max(1, Math.abs(a), Math.abs(b));
             const checks = [];

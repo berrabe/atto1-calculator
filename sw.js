@@ -1,4 +1,4 @@
-const CACHE = 'atto1-calc-v11';
+const CACHE = 'atto1-calc-v12';
 const ASSETS = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', e => {
