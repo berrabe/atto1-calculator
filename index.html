@@ -314,6 +314,21 @@
             margin-top: 10px;
         }
 
+        .linkish {
+            border: none;
+            background: none;
+            padding: 4px 2px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            color: #667eea;
+            cursor: pointer;
+        }
+
+        .field + .linkish {
+            margin-top: 6px;
+        }
+
         .result {
             background: #f8f8fc;
             border-radius: 16px;
@@ -473,6 +488,7 @@
                     <label for="c-pbjt" data-i18n="pbjtLbl"></label>
                     <input type="number" id="c-pbjt" inputmode="decimal" min="0" max="100" step="any" value="8">
                 </div>
+                <button type="button" class="linkish hidden" id="c-fee-add">+ <span data-i18n="svcFee"></span></button>
                 <div class="field hidden" id="c-fee-field">
                     <label for="c-fee" data-i18n="feeLbl"></label>
                     <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="0">
@@ -731,6 +747,15 @@
             } catch (e) {}
         }
 
+        let feeRevealed = false;
+
+        function syncFeeVisibility() {
+            const isDC = state.charger === 'dc';
+            const showField = isDC && (feeRevealed || state.feeDC > 0);
+            $('c-fee-add').classList.toggle('hidden', !isDC || showField);
+            $('c-fee-field').classList.toggle('hidden', !showField);
+        }
+
         function setCharger(mode) {
             state.charger = mode;
             $('ch-ac').classList.toggle('active', mode === 'ac');
@@ -739,10 +764,9 @@
             $('c-pbjt').value = state.pbjtDC;
             $('c-fee').value = state.feeDC;
             $('c-pbjt-field').classList.toggle('hidden', mode !== 'dc');
-            $('c-fee-field').classList.toggle('hidden', mode !== 'dc');
             $('c-energy-row').classList.toggle('hidden', mode !== 'dc');
             $('c-pbjt-row').classList.toggle('hidden', mode !== 'dc');
-            $('c-fee-row').classList.toggle('hidden', mode !== 'dc');
+            syncFeeVisibility();
             $('c-source').textContent = T(mode === 'ac' ? 'srcAC' : 'srcDC');
         }
 
@@ -769,6 +793,7 @@
                 $('c-fee-v').textContent = rp.format(r.fee);
                 $('c-cost').textContent = rp.format(r.cost);
             }
+            $('c-fee-row').classList.toggle('hidden', !(r.fee > 0));
             document.querySelectorAll('#c-chips .chip').forEach(ch =>
                 ch.classList.toggle('active', parseFloat(ch.dataset.tgt) === num('c-tgt')));
             saveState();
@@ -810,6 +835,7 @@
 
         $('ch-ac').addEventListener('click', () => { setCharger('ac'); renderCharge(); });
         $('ch-dc').addEventListener('click', () => { setCharger('dc'); renderCharge(); });
+        $('c-fee-add').addEventListener('click', () => { feeRevealed = true; syncFeeVisibility(); });
 
         $('lang-en').addEventListener('click', () => applyLang('en'));
         $('lang-id').addEventListener('click', () => applyLang('id'));
