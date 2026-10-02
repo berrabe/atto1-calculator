@@ -24,7 +24,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 2. ⚡ Features
 
-
 | Feature | What you get |
 |---|---|
 | **Charge planner** | kWh from the wall (what you pay) vs into the battery, range gained, charging time, and cost — AC 6.6 kW or DC 30 kW |
@@ -39,7 +38,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 &nbsp;
 
 # 3. 📱 Install on iPhone
-
 
 1. Open [berrabe.github.io/atto1-calculator](https://berrabe.github.io/atto1-calculator/) in **Safari**
 2. Share → **Add to Home Screen**
@@ -56,13 +54,12 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 4. 🔢 Assumptions & Tariff Sources
 
-
 | Item | Default | Source |
 |---|---|---|
 | Battery | 30.08 kWh | Atto 1 Dynamic spec |
 | Range | 300 km NEDC | Factory claim — 1% = 3 km |
+| DC charging curve | Owner-measured taper | Session 11470208 (Oct 2026): flat 28.5 kW to ~83% → 26 @ 85% → ~16 @ 86–88% → 8 @ 91–94% → ~2 kW near 100% |
 | Charging efficiency | ~90% | Wall → battery losses |
-| DC time above ~85% | BMS taper modeled | Owner-measured: flat 30 kW to ~85%, 16 kW @ 90% — same shape as EVKX's measured Seagull 38 kWh curve |
 | **AC / home tariff** | Rp1.444,70/kWh | PLN R-1/TR 1.300–2.200 VA, Q3 2026 (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53) |
 | **DC / SPKLU tariff** | Rp2.466,78/kWh | ESDM "Layanan Khusus" rate — flat, day & night |
 | **PBJT-TL** | 8% (editable) | Local electricity tax — varies 0–9% per region/transaction |
@@ -79,8 +76,7 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 5. 🧪 Self-Test
 
-
-Append `?test=1` to the URL — a 17-assertion suite runs and shows a pass/fail banner inline, including a regression test that replays a real SPKLU invoice:
+Append `?test=1` to the URL — a 22-assertion suite runs and shows a pass/fail banner inline, including regression tests that replay real SPKLU invoices:
 
 ```
 14.452 kWh @ Rp2.466,78 + 8% PBJT = Rp38.502 ✓
@@ -93,7 +89,6 @@ Append `?test=1` to the URL — a 17-assertion suite runs and shows a pass/fail 
 &nbsp;
 
 # 6. 🛠️ Tech & Deploy
-
 
 | | |
 |---|---|

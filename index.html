@@ -606,6 +606,7 @@
                     <div class="r"><span class="k" id="t-max-lbl"></span><span class="v" id="t-max-v"></span></div>
                 </div>
                 <span class="verdict ok hidden" id="t-verdict"></span>
+                <div class="hint hidden" id="t-stops"></div>
             </div>
         </section>
 
@@ -623,8 +624,8 @@
             rangeNEDC: 300,      // km
             acKW: 6.6,
             dcKW: 30,
-            // ponytail: DC taper estimated from owner observation (flat 30 kW to ~85%, 16 kW @ 90%); same shape as EVKX-measured Seagull 38 kWh curve. Upgrade when a measured 30.08 kWh curve exists.
-            dcCurve: [[0, 20], [10, 30], [85, 30], [90, 16], [95, 10], [100, 4]],
+            // ponytail: DC taper from owner-measured session 11470208 (02 Oct 2026, 180 kW SPKLU): flat 28.5 kW to ~83%, cliff to ~16 at 86, 8 kW by 91, ~4.6 at 95, ~2 at 100. Upgrade: more measured sessions.
+            dcCurve: [[0, 20], [10, 28.5], [83, 28.5], [85, 26], [86, 15.5], [88, 16], [91, 8], [94, 8], [95, 4.6], [100, 2]],
             eff: 0.9             // charging efficiency (wall -> battery)
         };
         const DEFAULTS = {
@@ -657,9 +658,14 @@
                 rangeRemain: 'Range remaining (NEDC)', untilEmpty: cons => `Until empty (@ ${cons} kWh/100km)`,
                 okVerdict: p => `Trip is fine — ${p}% left at arrival`,
                 badVerdict: p => `Not enough charge — short by ~${p} km`,
+                stop20: km => `🟢 Look for a SPKLU at ~20% battery (≈ km ${km})`,
+                stop10: km => `🔴 Latest stop: 10% battery (≈ km ${km})`,
+                stopCharge: (km, p) => `⚡ From that stop: ${km} km to go — charge to ≥${p}%`,
+                stopsMany: (km, p, n) => `⚡ From that stop: ${km} km to go — charge to ≥${p}% → ${n} stops needed`,
+                stopNow: '🟢 You’re already below 20% — charge now',
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
                 srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (verified from 6 PLN invoices, Sep 2026). PBJT-TL is a local electricity tax that varies 0–9% per region/transaction (your 6 PLN invoices: 0, 4, 6, 8, 8, 9%). Service fee: PLN SPKLU = Rp0; third-party operators (Voltron etc.) set their own rates — edit manually.',
-                srcCurve: 'DC: BMS taper, by design. To ~85% the pack accepts the full 30 kW (BYD claims 30–80% in 30 min). Above that the BMS lowers current to protect the cells — owner-measured on this car: 30 kW until ~85%, 16 kW @ 90%, then down to ~4 kW at 100%. Same curve shape as EVKX’s measurement of the 38 kWh Seagull (same car, bigger pack). Time is integrated from this curve; energy and cost are unaffected.',
+                srcCurve: 'DC: BMS taper, by design. Owner-measured on this car (PLN session 11470208, 180 kW charger): flat 28.5 kW to ~83%, then a cliff — 26 kW at 85%, ~16 kW at 86–88%, 8 kW by 91%, ~4.6 kW at 95%, ~2 kW near 100%. Same shape as EVKX’s measured 38 kWh Seagull curve. Time is integrated from this curve; energy and cost are unaffected.',
                 footer1: '30.08 kWh · 300 km NEDC · AC 6.6 kW · DC 30 kW · ~90% charging efficiency',
                 footer2: 'Estimates only — real consumption varies with speed, AC, and terrain.',
                 hour: 'h', min: 'min'
@@ -686,9 +692,14 @@
                 rangeRemain: 'Range tersisa (NEDC)', untilEmpty: cons => `Sampai habis (@ ${cons} kWh/100km)`,
                 okVerdict: p => `Perjalanan aman — sisa ${p}% saat tiba`,
                 badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
+                stop20: km => `🟢 Mulai cari SPKLU saat baterai ~20% (≈ km ${km})`,
+                stop10: km => `🔴 Batas terakhir: 10% baterai (≈ km ${km})`,
+                stopCharge: (km, p) => `⚡ Dari stop itu: sisa ${km} km — isi minimal ${p}%`,
+                stopsMany: (km, p, n) => `⚡ Dari stop itu: sisa ${km} km — isi minimal ${p}% → butuh ${n} kali charge`,
+                stopNow: '🟢 Baterai sudah di bawah 20% — isi sekarang',
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
                 srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (terverifikasi dari 6 invoice PLN, Sep 2026). PBJT-TL adalah pajak daerah atas tenaga listrik, bervariasi 0–9% per daerah/transaksi (6 invoice PLN kamu: 0, 4, 6, 8, 8, 9%). Biaya layanan: SPKLU PLN = Rp0; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
-                srcCurve: 'DC: taper BMS, memang disengaja. Sampai ~85% baterai masih menerima 30 kW penuh (klaim BYD: 30–80% dalam 30 menit). Di atas itu BMS menurunkan arus untuk melindungi sel — hasil pengamatan pemilik mobil ini: 30 kW sampai ~85%, 16 kW @ 90%, lalu turun ke ~4 kW di 100%. Bentuk kurvanya sama dengan pengukuran EVKX untuk Seagull 38 kWh (mobil yang sama, baterai lebih besar). Waktu dihitung dari kurva ini; energi dan biaya tidak terpengaruh.',
+                srcCurve: 'DC: taper BMS, memang disengaja. Hasil pengamatan pemilik (sesi PLN 11470208, charger 180 kW): flat 28,5 kW sampai ~83%, lalu jurang — 26 kW di 85%, ~16 kW di 86–88%, 8 kW di 91%, ~4,6 kW di 95%, ~2 kW mendekati 100%. Bentuknya sama dengan kurva terukur EVKX untuk Seagull 38 kWh. Waktu dihitung dari kurva ini; energi dan biaya tidak terpengaruh.',
                 footer1: '30,08 kWh · 300 km NEDC · AC 6,6 kW · DC 30 kW · efisiensi charging ~90%',
                 footer2: 'Hanya estimasi — konsumsi nyata dipengaruhi kecepatan, AC, dan medan.',
                 hour: 'j', min: 'mnt'
@@ -741,6 +752,16 @@
                 feasible: endPct > 0,
                 shortfallKm: endPct < 0 ? -endPct / 100 * CAR.battery / (consPer100 / 100) : 0
             };
+        }
+
+        function planStops(dist, curPct, consPer100) {
+            if (consPer100 <= 0) return { km20: 0, km10: 0, kmLeft: 0, chargeTo: 20, stops: 0 };
+            const kmPerPct = CAR.battery / consPer100;
+            const km20 = Math.max(0, (curPct - 20) * kmPerPct);
+            const km10 = Math.max(0, (curPct - 10) * kmPerPct);
+            const kmLeft = Math.max(0, dist - km20);
+            const chargeTo = 20 + kmLeft * consPer100 / CAR.battery;
+            return { km20, km10, kmLeft, chargeTo, stops: kmLeft > 0 ? Math.max(1, Math.ceil(kmLeft / (100 * kmPerPct))) : 0 };
         }
 
         const $ = id => document.getElementById(id);
@@ -890,6 +911,20 @@
                 v.className = 'verdict bad';
                 v.textContent = T('badVerdict')(fmt(r.shortfallKm, 0));
             }
+            const stopsBox = $('t-stops');
+            if (!r.feasible && r.dist > 0) {
+                const p = planStops(r.dist, clamp(num('t-cur'), 0, 100), num('t-cons'));
+                const km = n => fmt(Math.round(n), 0);
+                const l1 = p.km20 <= 0 ? T('stopNow') : T('stop20')(km(p.km20));
+                const l2 = T('stop10')(km(p.km10));
+                const l3 = p.chargeTo <= 100
+                    ? T('stopCharge')(km(p.kmLeft), km(p.chargeTo))
+                    : T('stopsMany')(km(p.kmLeft), km(p.chargeTo), p.stops);
+                stopsBox.innerHTML = `<div>${l1}</div><div>${l2}</div><div>${l3}</div>`;
+                stopsBox.classList.remove('hidden');
+            } else {
+                stopsBox.classList.add('hidden');
+            }
             document.querySelectorAll('#t-chips .chip').forEach(ch =>
                 ch.classList.toggle('active', parseFloat(ch.dataset.cons) === num('t-cons')));
             saveState();
@@ -963,13 +998,18 @@
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0);
                 assert(approx(r.hours, 1.5192), 'got ' + r.hours);
             });
-            t('charge time DC 30→80% ≈ 30 min (flat curve, matches BYD claim)', () => {
+            t('charge time DC 30→80% ≈ 32 min (measured flat 28.5 kW)', () => {
                 const r = calcCharge(30, 80, 'dc', 2466.78, 0, 0);
-                assert(approx(r.hours, 0.5013), 'got ' + r.hours);
+                assert(approx(r.hours, 0.5277), 'got ' + r.hours);
             });
-            t('charge time DC 20→100% ≈ 63 min (BMS taper >85%)', () => {
+            t('charge time DC 20→100% ≈ 86 min (measured taper)', () => {
                 const r = calcCharge(20, 100, 'dc', 2466.78, 0, 0);
-                assert(r.hours > 1.0 && r.hours < 1.17, 'got ' + r.hours);
+                assert(r.hours > 1.35 && r.hours < 1.5, 'got ' + r.hours);
+            });
+            t('session 11470208: 24→95% DC ≈ 56 min (receipt: 57m56s)', () => {
+                const r = calcCharge(24, 95, 'dc', 2466.78, 8, 0);
+                assert(r.hours > 0.9 && r.hours < 0.98, 'got ' + r.hours);
+                assert(approx(r.kWhWall, 23.73, 1e-3), 'wall ' + r.kWhWall);
             });
             t('charge cost AC = wall kWh × tariff, no fee/tax', () => {
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0, 0);
@@ -1018,6 +1058,26 @@
             t('trip beyond range → infeasible with shortfall', () => {
                 const r = calcTrip(500, 100, 10, false);
                 assert(!r.feasible && r.shortfallKm > 0, 'shortfall ' + r.shortfallKm);
+            });
+            t('stops: Jakarta→Jogja 500 km from 90% @11 → 2 stops', () => {
+                const p = planStops(500, 90, 11);
+                assert(approx(p.km20, 191.42), 'km20 ' + p.km20);
+                assert(approx(p.km10, 218.76), 'km10 ' + p.km10);
+                assert(approx(p.chargeTo, 132.85), 'chargeTo ' + p.chargeTo);
+                assert(p.stops === 2, 'stops ' + p.stops);
+            });
+            t('stops: 400 km fits with one stop (chargeTo ≤ 100)', () => {
+                const p = planStops(400, 90, 11);
+                assert(p.chargeTo <= 100 && p.chargeTo > 90, 'chargeTo ' + p.chargeTo);
+                assert(p.stops === 1, 'stops ' + p.stops);
+            });
+            t('stops: start below 20% → km20 = 0 (charge now)', () => {
+                const p = planStops(100, 15, 11);
+                assert(p.km20 === 0 && p.km10 > 0, 'km20 ' + p.km20 + ' km10 ' + p.km10);
+            });
+            t('stops: cons 0 → no crash, zeros', () => {
+                const p = planStops(500, 90, 0);
+                assert(p.stops === 0 && p.kmLeft === 0, 'got ' + JSON.stringify(p));
             });
 
             const failed = checks.filter(c => c.startsWith('FAIL'));
