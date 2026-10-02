@@ -21,7 +21,9 @@ Append `?test=1` to the URL to run the built-in math assertions (pass/fail banne
 
 - Charging assumes ~90% wall-to-battery efficiency.
 - DC charging time is a flat estimate — real DC charging tapers near 100%.
-- Tariff defaults to PLN home tariff (~Rp1.444,7/kWh), editable in the app.
+- Tariff defaults (Q3 2026, tap ⓘ in the app for sources):
+  - **AC / home**: Rp1.444,70/kWh — PLN R-1/TR 1.300–2.200 VA (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53)
+  - **DC / SPKLU**: Rp2.466,78/kWh (ESDM "Layanan Khusus", flat) + Fast Charging service fee max Rp25.000/session (Kepmen ESDM 182.K/MEM.S/2023, editable/waivable)
 - To ship an update: bump `CACHE` version in `sw.js` so clients pick up the new files.
 
 ## Deploy
