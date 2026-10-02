@@ -1,23 +1,12 @@
 # ⚡ Atto 1 Calculator
 
 <div align="center">
-<img src="assets/screenshot-charge.png" width="430" alt="Atto 1 Calculator — Charge tab">
+<img src="assets/screenshot-charge.png" width="280" alt="Atto 1 Calculator — Charge tab">
 </div>
 
 A tiny EV calculator for the **BYD Atto 1 Dynamic** (2026, CKD Indonesia) — 30.08 kWh, 300 km NEDC, AC 6.6 kW, DC 30 kW. It answers the two questions the car's own UI doesn't: **what a charge actually costs**, and **what's left in the battery after a trip**.
 
 **Live:** [berrabe.github.io/atto1-calculator](https://berrabe.github.io/atto1-calculator/)
-
-> [!TIP] Quick start
-> Open the live URL in iPhone Safari → Share → **Add to Home Screen**. It runs full-screen and works **completely offline** after the first open.
-
-> **📖 Table of Contents**
-> - [1. 🎯 What & Why](#1-🎯-what--why)
-> - [2. ⚡ Features](#2-⚡-features)
-> - [3. 📱 Install on iPhone](#3-📱-install-on-iphone)
-> - [4. 🔢 Assumptions & Tariff Sources](#4-🔢-assumptions--tariff-sources)
-> - [5. 🧪 Self-Test](#5-🧪-self-test)
-> - [6. 🛠️ Tech & Deploy](#6-🛠️-tech--deploy)
 
 &nbsp;
 &nbsp;
@@ -27,17 +16,7 @@ A tiny EV calculator for the **BYD Atto 1 Dynamic** (2026, CKD Indonesia) — 30
 
 # 1. 🎯 What & Why
 
----
-
-The Atto 1 shows battery % and a trip computer, but it never tells you **how much charging will cost** or **how far you can actually go**. This app does that math — calmly, in two screens.
-
-<div align="center">
-
-| Charge | Trip |
-|---|---|
-| <img src="assets/screenshot-charge.png" width="270" alt="Charge tab"> | <img src="assets/screenshot-trip.png" width="270" alt="Trip tab"> |
-
-</div>
+The Atto 1 shows battery % and a trip computer, but it never tells you **how much charging will cost** or **how far you can actually go**. This app does that math — calmly, in two screens: one to plan a charge, one to plan a trip.
 
 &nbsp;
 &nbsp;
@@ -45,7 +24,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 2. ⚡ Features
 
----
 
 | Feature | What you get |
 |---|---|
@@ -62,7 +40,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 3. 📱 Install on iPhone
 
----
 
 1. Open [berrabe.github.io/atto1-calculator](https://berrabe.github.io/atto1-calculator/) in **Safari**
 2. Share → **Add to Home Screen**
@@ -79,7 +56,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 4. 🔢 Assumptions & Tariff Sources
 
----
 
 | Item | Default | Source |
 |---|---|---|
@@ -102,7 +78,6 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 5. 🧪 Self-Test
 
----
 
 Append `?test=1` to the URL — a 15-assertion suite runs and shows a pass/fail banner inline, including a regression test that replays a real SPKLU invoice:
 
@@ -118,7 +93,6 @@ Append `?test=1` to the URL — a 15-assertion suite runs and shows a pass/fail 
 
 # 6. 🛠️ Tech & Deploy
 
----
 
 | | |
 |---|---|
