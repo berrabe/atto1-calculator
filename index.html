@@ -123,12 +123,9 @@
         }
 
         .group {
-            margin-bottom: 24px;
-        }
-
-        .group + .group {
             border-top: 1px solid #f0f0f4;
             padding-top: 20px;
+            margin-bottom: 24px;
         }
 
         .group-label {
@@ -329,6 +326,14 @@
             margin-top: 6px;
         }
 
+        .mode-desc {
+            font-size: 13px;
+            color: #6e6e73;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            margin-top: -4px;
+        }
+
         .hint {
             font-size: 12px;
             color: #8e8e93;
@@ -458,6 +463,7 @@
         </div>
 
         <section id="panel-charge">
+            <p class="mode-desc" data-i18n="descCharge"></p>
             <div class="group">
                 <div class="group-label" data-i18n="gBattery"></div>
                 <div class="row2">
@@ -469,11 +475,6 @@
                         <label for="c-tgt" data-i18n="tgtPct"></label>
                         <input type="number" id="c-tgt" inputmode="decimal" min="0" max="100" step="1" value="80">
                     </div>
-                </div>
-                <div class="chips" id="c-chips">
-                    <button class="chip" data-tgt="80">80%</button>
-                    <button class="chip" data-tgt="90">90%</button>
-                    <button class="chip" data-tgt="100">100%</button>
                 </div>
             </div>
 
@@ -523,11 +524,12 @@
         </section>
 
         <section id="panel-trip" class="hidden">
+            <p class="mode-desc" data-i18n="descTrip"></p>
             <div class="group">
                 <div class="group-label" data-i18n="trip"></div>
                 <div class="row2">
                     <div class="field">
-                        <label for="t-dist" data-i18n="dist"></label>
+                        <label for="t-dist" data-i18n="dist" id="t-dist-lbl"></label>
                         <input type="number" id="t-dist" inputmode="decimal" min="0" step="1" value="30">
                     </div>
                     <div class="field">
@@ -601,18 +603,19 @@
 
         const I18N = {
             en: {
-                about: 'About this app',
-                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
+                about: 'About this app',                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
                 charge: 'Charge', trip: 'Trip',
+                descCharge: 'Calculate the energy, time, and cost to charge from your current battery level to a target — and the range that adds.',
+                descTrip: 'Estimate how much battery a drive of a given distance will use, and what remains when you arrive.',
                 gBattery: 'Battery', gCharging: 'Charging', gTariff: 'Tariff',
                 gCons: 'Consumption', gOpts: 'Options',
                 curPct: 'Current (%)', tgtPct: 'Target (%)', curBat: 'Current battery (%)',
                 tariffLbl: 'Electricity tariff (Rp / kWh)', feeLbl: 'Service fee per session (Rp)',
                 ratesQ: 'Where are these rates from?',
                 chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
-                dist: 'Distance (km)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
+                dist: 'Distance (km)', distRT: 'Distance (round trip)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
                 chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
-                fromWall: 'kWh from wall', intoBat: 'Into battery', rangeGained: 'Range gained (NEDC)',
+                fromWall: 'kWh from wall (you pay this)', intoBat: 'Into battery (~90% eff.)', rangeGained: 'Range gained (NEDC)',
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
                 energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
@@ -629,15 +632,17 @@
                 about: 'Tentang app ini',
                 aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
                 charge: 'Isi Daya', trip: 'Perjalanan',
+                descCharge: 'Hitung energi, waktu, dan biaya untuk mengisi dari level baterai sekarang ke target — plus range yang didapat.',
+                descTrip: 'Perkirakan berapa baterai terpakai untuk jarak tertentu, dan sisa saat tiba.',
                 gBattery: 'Baterai', gCharging: 'Pengisian', gTariff: 'Tarif',
                 gCons: 'Konsumsi', gOpts: 'Opsi',
                 curPct: 'Saat ini (%)', tgtPct: 'Target (%)', curBat: 'Baterai saat ini (%)',
                 tariffLbl: 'Tarif listrik (Rp / kWh)', feeLbl: 'Biaya layanan per sesi (Rp)',
                 ratesQ: 'Dari mana tarif ini?',
                 chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
-                dist: 'Jarak (km)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
+                dist: 'Jarak (km)', distRT: 'Jarak (pulang-pergi)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
                 chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
-                fromWall: 'kWh dari dinding', intoBat: 'Ke baterai', rangeGained: 'Range didapat (NEDC)',
+                fromWall: 'kWh dari dinding (yang kamu bayar)', intoBat: 'Ke baterai (~90% ef.)', rangeGained: 'Range didapat (NEDC)',
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
                 energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
@@ -801,13 +806,12 @@
                 $('c-cost').textContent = rp.format(r.cost);
             }
             $('c-fee-row').classList.toggle('hidden', !(r.fee > 0));
-            document.querySelectorAll('#c-chips .chip').forEach(ch =>
-                ch.classList.toggle('active', parseFloat(ch.dataset.tgt) === num('c-tgt')));
             saveState();
         }
 
         function renderTrip() {
             const r = calcTrip(num('t-dist'), clamp(num('t-cur'), 0, 100), num('t-cons'), $('t-round').checked);
+            $('t-dist-lbl').textContent = T($('t-round').checked ? 'distRT' : 'dist');
             $('t-end').textContent = fmt(Math.max(0, r.endPct), 0);
             $('t-used').textContent = fmt(r.kWhUsed, 2) + ' kWh';
             $('t-dist-v').textContent = fmt(r.dist, 0) + ' km';
@@ -847,8 +851,6 @@
         $('lang-en').addEventListener('click', () => applyLang('en'));
         $('lang-id').addEventListener('click', () => applyLang('id'));
 
-        document.querySelectorAll('#c-chips .chip').forEach(ch =>
-            ch.addEventListener('click', () => { $('c-tgt').value = ch.dataset.tgt; renderCharge(); }));
         document.querySelectorAll('#t-chips .chip').forEach(ch =>
             ch.addEventListener('click', () => { $('t-cons').value = ch.dataset.cons; renderTrip(); }));
 
