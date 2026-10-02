@@ -41,11 +41,46 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
         h1 {
             font-size: 28px;
             font-weight: 700;
             color: #1d1d1f;
             letter-spacing: -0.3px;
+        }
+
+        .lang {
+            display: flex;
+            background: #f2f2f7;
+            border-radius: 8px;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+
+        .lang button {
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            padding: 7px 11px;
+            border-radius: 6px;
+            color: #6e6e73;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang button.active {
+            background: white;
+            color: #1d1d1f;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
         .subtitle {
@@ -54,34 +89,12 @@
             margin-bottom: 16px;
         }
 
-        .about {
-            background: #f8f8fc;
-            border-radius: 14px;
-            padding: 14px 16px;
-            margin-bottom: 20px;
-        }
-
-        .about-title {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: #667eea;
-            margin-bottom: 6px;
-        }
-
-        .about p {
-            font-size: 13px;
-            color: #6e6e73;
-            line-height: 1.55;
-        }
-
         .segmented {
             display: flex;
             background: #f2f2f7;
             border-radius: 10px;
             padding: 3px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .segmented.tight {
@@ -249,35 +262,51 @@
             transform: translateX(18px);
         }
 
-        details.source {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #8e8e93;
+        details.box {
+            border: 1px solid #e5e5ea;
+            border-radius: 12px;
         }
 
-        details.source summary {
-            cursor: pointer;
-            font-weight: 500;
-            color: #667eea;
+        details.box summary {
             list-style: none;
-            display: inline-flex;
+            padding: 11px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            gap: 8px;
         }
 
-        details.source summary::-webkit-details-marker {
+        details.box summary::-webkit-details-marker {
             display: none;
         }
 
-        details.source summary::before {
-            content: "ⓘ";
-            font-size: 13px;
+        details.box summary::after {
+            content: "+";
+            font-size: 16px;
+            font-weight: 500;
+            color: #8e8e93;
         }
 
-        details.source p {
-            margin-top: 6px;
+        details.box[open] summary::after {
+            content: "−";
+        }
+
+        details.box .box-body {
+            padding: 2px 14px 12px;
+            font-size: 12px;
             line-height: 1.55;
-            color: #8e8e93;
+            color: #6e6e73;
+        }
+
+        details.box + .field,
+        .field + details.box {
+            margin-top: 10px;
         }
 
         .result {
@@ -381,34 +410,36 @@
 </head>
 <body>
     <div class="container">
-        <h1>Atto 1 Calculator</h1>
+        <div class="header">
+            <h1>Atto 1 Calculator</h1>
+            <div class="lang" role="group" aria-label="Language">
+                <button id="lang-en" class="active">EN</button>
+                <button id="lang-id">ID</button>
+            </div>
+        </div>
         <p class="subtitle">BYD Atto 1 Dynamic &middot; 2026 CKD</p>
 
-        <div class="about">
-            <div class="about-title">About</div>
-            <p>
-                Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost
-                of a charge, and how far a trip will drain the battery &mdash; math the car's own UI doesn't do.
-                Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable
-                and sourced from current official rates (tap ⓘ under each field).
-            </p>
-        </div>
+        <details class="box" id="about">
+            <summary data-i18n="about"></summary>
+            <div class="box-body" data-i18n="aboutBody"></div>
+        </details>
+        <div style="height: 20px"></div>
 
         <div class="segmented" role="tablist">
-            <button id="tab-charge" class="active" role="tab">Charge</button>
-            <button id="tab-trip" role="tab">Trip</button>
+            <button id="tab-charge" class="active" data-i18n="charge" role="tab"></button>
+            <button id="tab-trip" data-i18n="trip" role="tab"></button>
         </div>
 
         <section id="panel-charge">
             <div class="group">
-                <div class="group-label">Battery</div>
+                <div class="group-label" data-i18n="gBattery"></div>
                 <div class="row2">
                     <div class="field">
-                        <label for="c-cur">Current (%)</label>
+                        <label for="c-cur" data-i18n="curPct"></label>
                         <input type="number" id="c-cur" inputmode="decimal" min="0" max="100" step="1" value="50">
                     </div>
                     <div class="field">
-                        <label for="c-tgt">Target (%)</label>
+                        <label for="c-tgt" data-i18n="tgtPct"></label>
                         <input type="number" id="c-tgt" inputmode="decimal" min="0" max="100" step="1" value="80">
                     </div>
                 </div>
@@ -420,78 +451,75 @@
             </div>
 
             <div class="group">
-                <div class="group-label">Charging</div>
+                <div class="group-label" data-i18n="gCharging"></div>
                 <div class="segmented tight">
-                    <button id="ch-ac" class="active">AC &middot; 6.6 kW</button>
-                    <button id="ch-dc">DC &middot; 30 kW</button>
+                    <button id="ch-ac" class="active" data-i18n="chargerAC"></button>
+                    <button id="ch-dc" data-i18n="chargerDC"></button>
                 </div>
             </div>
 
             <div class="group">
-                <div class="group-label">Tariff</div>
+                <div class="group-label" data-i18n="gTariff"></div>
                 <div class="field">
-                    <label for="c-tariff">Electricity tariff (Rp / kWh)</label>
+                    <label for="c-tariff" data-i18n="tariffLbl"></label>
                     <input type="number" id="c-tariff" inputmode="decimal" min="0" step="any" value="1444.7">
                 </div>
                 <div class="field hidden" id="c-fee-field">
-                    <label for="c-fee">Service fee per session (Rp)</label>
+                    <label for="c-fee" data-i18n="feeLbl"></label>
                     <input type="number" id="c-fee" inputmode="decimal" min="0" step="any" value="25000">
                 </div>
-                <details class="source">
-                    <summary>Where are these rates from?</summary>
-                    <p id="c-source">
-                        AC: PLN home tariff R-1/TR, Q3 2026 &mdash; 1.300&ndash;2.200 VA: Rp1.444,70/kWh
-                        (900 VA: Rp1.352 &middot; 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.
-                    </p>
+                <details class="box">
+                    <summary data-i18n="ratesQ"></summary>
+                    <div class="box-body" id="c-source"></div>
                 </details>
             </div>
 
             <div class="result">
                 <div class="primary">
-                    <span class="value" id="c-kwh">&mdash;</span> <span class="unit">kWh from wall</span>
+                    <span class="value" id="c-kwh">&mdash;</span> <span class="unit" data-i18n="fromWall"></span>
                 </div>
                 <div class="rows">
-                    <div class="r"><span class="k">Into battery</span><span class="v" id="c-bat">&mdash;</span></div>
-                    <div class="r"><span class="k">Range gained</span><span class="v" id="c-km">&mdash;</span></div>
-                    <div class="r"><span class="k">Estimated time</span><span class="v" id="c-time">&mdash;</span></div>
-                    <div class="r hidden" id="c-fee-row"><span class="k">Service fee</span><span class="v" id="c-fee-v">&mdash;</span></div>
-                    <div class="r"><span class="k">Estimated cost</span><span class="v" id="c-cost">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="intoBat"></span><span class="v" id="c-bat">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="rangeGained"></span><span class="v" id="c-km">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="estTime"></span><span class="v" id="c-time">&mdash;</span></div>
+                    <div class="r hidden" id="c-fee-row"><span class="k" data-i18n="svcFee"></span><span class="v" id="c-fee-v">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
                 </div>
             </div>
         </section>
 
         <section id="panel-trip" class="hidden">
             <div class="group">
-                <div class="group-label">Trip</div>
+                <div class="group-label" data-i18n="trip"></div>
                 <div class="row2">
                     <div class="field">
-                        <label for="t-dist">Distance (km)</label>
+                        <label for="t-dist" data-i18n="dist"></label>
                         <input type="number" id="t-dist" inputmode="decimal" min="0" step="1" value="30">
                     </div>
                     <div class="field">
-                        <label for="t-cur">Current battery (%)</label>
+                        <label for="t-cur" data-i18n="curBat"></label>
                         <input type="number" id="t-cur" inputmode="decimal" min="0" max="100" step="1" value="80">
                     </div>
                 </div>
             </div>
 
             <div class="group">
-                <div class="group-label">Consumption</div>
+                <div class="group-label" data-i18n="gCons"></div>
                 <div class="field">
-                    <label for="t-cons">kWh / 100 km</label>
+                    <label for="t-cons" data-i18n="consLbl"></label>
                     <input type="number" id="t-cons" inputmode="decimal" min="1" step="0.1" value="10.0">
                     <div class="chips" id="t-chips">
-                        <button class="chip" data-cons="9">City &middot; 9 kWh</button>
-                        <button class="chip" data-cons="11">Mixed &middot; 11 kWh</button>
-                        <button class="chip" data-cons="14">Highway &middot; 14 kWh</button>
+                        <button class="chip" data-cons="9" data-i18n="chipCity"></button>
+                        <button class="chip" data-cons="11" data-i18n="chipMixed"></button>
+                        <button class="chip" data-cons="14" data-i18n="chipHwy"></button>
                     </div>
                 </div>
             </div>
 
             <div class="group">
-                <div class="group-label">Options</div>
+                <div class="group-label" data-i18n="gOpts"></div>
                 <div class="switch-row">
-                    <span>Round trip</span>
+                    <span data-i18n="roundLbl"></span>
                     <label class="switch">
                         <input type="checkbox" id="t-round">
                         <span class="track"></span>
@@ -501,21 +529,21 @@
 
             <div class="result">
                 <div class="primary">
-                    <span class="value" id="t-end">&mdash;</span> <span class="unit">% remaining</span>
+                    <span class="value" id="t-end">&mdash;</span> <span class="unit" data-i18n="pctRemaining"></span>
                 </div>
                 <div class="rows">
-                    <div class="r"><span class="k">Energy used</span><span class="v" id="t-used">&mdash;</span></div>
-                    <div class="r"><span class="k">Distance</span><span class="v" id="t-dist-v">&mdash;</span></div>
-                    <div class="r"><span class="k">Range remaining</span><span class="v" id="t-endkm">&mdash;</span></div>
-                    <div class="r"><span class="k">Max range on current charge</span><span class="v" id="t-max">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="energyUsed"></span><span class="v" id="t-used">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="distance"></span><span class="v" id="t-dist-v">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="rangeRemain"></span><span class="v" id="t-endkm">&mdash;</span></div>
+                    <div class="r"><span class="k" data-i18n="maxRange"></span><span class="v" id="t-max">&mdash;</span></div>
                 </div>
                 <span class="verdict ok hidden" id="t-verdict"></span>
             </div>
         </section>
 
         <footer>
-            30.08 kWh &middot; 300 km NEDC &middot; AC 6.6 kW &middot; DC 30 kW &middot; ~90% charging efficiency<br>
-            Estimates only &mdash; real consumption varies with speed, AC, and terrain.
+            <div data-i18n="footer1"></div>
+            <div data-i18n="footer2"></div>
         </footer>
 
         <div id="test-banner" class="test-banner hidden"></div>
@@ -535,6 +563,57 @@
             dcFee: 25000         // Fast Charging service fee ceiling, Kepmen ESDM 182.K/2023
         };
         const KM_PER_PCT = CAR.rangeNEDC / 100;
+
+        const I18N = {
+            en: {
+                about: 'About this app',
+                aboutBody: 'Made for the BYD Atto 1 Dynamic (2026, CKD Indonesia): estimates the energy, time, and cost of a charge, and how far a trip will drain the battery — math the car’s own UI doesn’t do. Assumptions: 30.08 kWh battery, 300 km NEDC, ~90% charging efficiency. Tariffs are editable and sourced from current official rates (open “Where are these rates from?” under each field).',
+                charge: 'Charge', trip: 'Trip',
+                gBattery: 'Battery', gCharging: 'Charging', gTariff: 'Tariff',
+                gCons: 'Consumption', gOpts: 'Options',
+                curPct: 'Current (%)', tgtPct: 'Target (%)', curBat: 'Current battery (%)',
+                tariffLbl: 'Electricity tariff (Rp / kWh)', feeLbl: 'Service fee per session (Rp)',
+                ratesQ: 'Where are these rates from?',
+                chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
+                dist: 'Distance (km)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
+                chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
+                fromWall: 'kWh from wall', intoBat: 'Into battery', rangeGained: 'Range gained',
+                estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
+                pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
+                rangeRemain: 'Range remaining', maxRange: 'Max range on current charge',
+                okVerdict: p => `Trip is fine — ${p}% left at arrival`,
+                badVerdict: p => `Not enough charge — short by ~${p} km`,
+                srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
+                srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (day & night) + Fast Charging service fee, max Rp25.000/session (Kepmen ESDM 182.K/MEM.S/2023). Some SPKLU waive the fee; third-party operators (Voltron etc.) set their own rates — edit manually.',
+                footer1: '30.08 kWh · 300 km NEDC · AC 6.6 kW · DC 30 kW · ~90% charging efficiency',
+                footer2: 'Estimates only — real consumption varies with speed, AC, and terrain.',
+                hour: 'h', min: 'min'
+            },
+            id: {
+                about: 'Tentang app ini',
+                aboutBody: 'Dibuat untuk BYD Atto 1 Dynamic (2026, CKD Indonesia): memperkirakan energi, waktu, dan biaya pengisian daya, serta seberapa banyak baterai terpakai untuk sebuah perjalanan — perhitungan yang tidak ada di UI mobil. Asumsi: baterai 30,08 kWh, 300 km NEDC, efisiensi charging ~90%. Tarif bisa diedit dan bersumber dari tarif resmi terkini (buka “Dari mana tarif ini?” di tiap field).',
+                charge: 'Isi Daya', trip: 'Perjalanan',
+                gBattery: 'Baterai', gCharging: 'Pengisian', gTariff: 'Tarif',
+                gCons: 'Konsumsi', gOpts: 'Opsi',
+                curPct: 'Saat ini (%)', tgtPct: 'Target (%)', curBat: 'Baterai saat ini (%)',
+                tariffLbl: 'Tarif listrik (Rp / kWh)', feeLbl: 'Biaya layanan per sesi (Rp)',
+                ratesQ: 'Dari mana tarif ini?',
+                chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
+                dist: 'Jarak (km)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
+                chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
+                fromWall: 'kWh dari dinding', intoBat: 'Ke baterai', rangeGained: 'Range didapat',
+                estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
+                pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
+                rangeRemain: 'Range tersisa', maxRange: 'Max range dengan charge sekarang',
+                okVerdict: p => `Perjalanan aman — sisa ${p}% saat tiba`,
+                badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
+                srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
+                srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (siang/malam sama) + biaya layanan Fast Charging maks Rp25.000/sesi (Kepmen ESDM 182.K/MEM.S/2023). Sebagian SPKLU membebaskan biaya ini; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
+                footer1: '30,08 kWh · 300 km NEDC · AC 6,6 kW · DC 30 kW · efisiensi charging ~90%',
+                footer2: 'Hanya estimasi — konsumsi nyata dipengaruhi kecepatan, AC, dan medan.',
+                hour: 'j', min: 'mnt'
+            }
+        };
 
         function calcCharge(curPct, tgtPct, charger, tariff, fee) {
             const d = Math.max(0, Math.min(100, tgtPct) - Math.min(100, Math.max(0, curPct)));
@@ -561,6 +640,17 @@
             };
         }
 
+        const $ = id => document.getElementById(id);
+        const num = id => parseFloat($(id).value) || 0;
+        const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+        const state = {
+            lang: 'en',
+            charger: 'ac',
+            tariffAC: DEFAULTS.acTariff, tariffDC: DEFAULTS.dcTariff, feeDC: DEFAULTS.dcFee
+        };
+        const T = key => I18N[state.lang][key];
+
         function fmt(n, dec) {
             return n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
         }
@@ -569,29 +659,29 @@
             if (!isFinite(hours) || hours <= 0) return '—';
             const h = Math.floor(hours);
             const m = Math.round((hours - h) * 60);
-            if (h === 0) return m + ' min';
-            return h + ' h ' + m + ' min';
+            if (h === 0) return m + ' ' + T('min');
+            return h + ' ' + T('hour') + ' ' + m + ' ' + T('min');
         }
 
         const rp = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
 
-        const $ = id => document.getElementById(id);
-        const num = id => parseFloat($(id).value) || 0;
-        const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-
-        let charger = 'ac';
-
-        const SOURCE_TEXT = {
-            ac: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh ' +
-                '(900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
-            dc: 'DC: ESDM "Layanan Khusus" SPKLU rate — Rp2.466,78/kWh flat (day & night) ' +
-                '+ Fast Charging service fee, max Rp25.000/session (Kepmen ESDM 182.K/MEM.S/2023). ' +
-                'Some SPKLU waive the fee; third-party operators (Voltron etc.) set their own rates — edit manually.'
-        };
+        function applyLang(lang) {
+            state.lang = I18N[lang] ? lang : 'en';
+            document.documentElement.lang = state.lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = T(el.dataset.i18n);
+            });
+            $('lang-en').classList.toggle('active', state.lang === 'en');
+            $('lang-id').classList.toggle('active', state.lang === 'id');
+            $('c-source').textContent = T(state.charger === 'ac' ? 'srcAC' : 'srcDC');
+            renderCharge();
+            renderTrip();
+            saveState();
+        }
 
         function saveState() {
             const s = {
-                charger,
+                lang: state.lang, charger: state.charger,
                 tariffAC: state.tariffAC, tariffDC: state.tariffDC, feeDC: state.feeDC,
                 cCur: $('c-cur').value, cTgt: $('c-tgt').value,
                 tDist: $('t-dist').value, tCur: $('t-cur').value,
@@ -603,37 +693,39 @@
         function loadState() {
             try {
                 const s = JSON.parse(localStorage.getItem('atto1-state'));
-                if (!s) return;
-                if (s.charger === 'dc') charger = 'dc';
-                if (s.tariffAC) state.tariffAC = s.tariffAC;
-                if (s.tariffDC) state.tariffDC = s.tariffDC;
-                if (s.feeDC !== undefined) state.feeDC = s.feeDC;
-                if (s.cCur) $('c-cur').value = s.cCur;
-                if (s.cTgt) $('c-tgt').value = s.cTgt;
-                if (s.tDist) $('t-dist').value = s.tDist;
-                if (s.tCur) $('t-cur').value = s.tCur;
-                if (s.tCons) $('t-cons').value = s.tCons;
-                $('t-round').checked = !!s.tRound;
+                if (s) {
+                    if (I18N[s.lang]) state.lang = s.lang;
+                    if (s.charger) state.charger = s.charger;
+                    if (s.tariffAC) state.tariffAC = s.tariffAC;
+                    if (s.tariffDC) state.tariffDC = s.tariffDC;
+                    if (s.feeDC !== undefined) state.feeDC = s.feeDC;
+                    if (s.cCur) $('c-cur').value = s.cCur;
+                    if (s.cTgt) $('c-tgt').value = s.cTgt;
+                    if (s.tDist) $('t-dist').value = s.tDist;
+                    if (s.tCur) $('t-cur').value = s.tCur;
+                    if (s.tCons) $('t-cons').value = s.tCons;
+                    $('t-round').checked = !!s.tRound;
+                } else if (typeof navigator !== 'undefined' && (navigator.language || '').toLowerCase().startsWith('id')) {
+                    state.lang = 'id';
+                }
             } catch (e) {}
         }
 
-        const state = { tariffAC: DEFAULTS.acTariff, tariffDC: DEFAULTS.dcTariff, feeDC: DEFAULTS.dcFee };
-
         function setCharger(mode) {
-            charger = mode;
+            state.charger = mode;
             $('ch-ac').classList.toggle('active', mode === 'ac');
             $('ch-dc').classList.toggle('active', mode === 'dc');
             $('c-tariff').value = mode === 'ac' ? state.tariffAC : state.tariffDC;
             $('c-fee').value = state.feeDC;
             $('c-fee-field').classList.toggle('hidden', mode !== 'dc');
             $('c-fee-row').classList.toggle('hidden', mode !== 'dc');
-            $('c-source').textContent = SOURCE_TEXT[mode];
+            $('c-source').textContent = T(mode === 'ac' ? 'srcAC' : 'srcDC');
         }
 
         function renderCharge() {
-            if (charger === 'ac') state.tariffAC = num('c-tariff');
+            if (state.charger === 'ac') state.tariffAC = num('c-tariff');
             else { state.tariffDC = num('c-tariff'); state.feeDC = num('c-fee'); }
-            const r = calcCharge(num('c-cur'), num('c-tgt'), charger, num('c-tariff'), num('c-fee'));
+            const r = calcCharge(num('c-cur'), num('c-tgt'), state.charger, num('c-tariff'), num('c-fee'));
             if (r.deltaPct <= 0) {
                 $('c-kwh').textContent = '0';
                 $('c-bat').textContent = '0 kWh';
@@ -665,10 +757,10 @@
             v.classList.remove('hidden');
             if (r.feasible) {
                 v.className = 'verdict ok';
-                v.textContent = 'Trip is fine — ' + fmt(r.endPct, 0) + '% left at arrival';
+                v.textContent = T('okVerdict')(fmt(r.endPct, 0));
             } else {
                 v.className = 'verdict bad';
-                v.textContent = 'Not enough charge — short by ~' + fmt(r.shortfallKm, 0) + ' km';
+                v.textContent = T('badVerdict')(fmt(r.shortfallKm, 0));
             }
             document.querySelectorAll('#t-chips .chip').forEach(ch =>
                 ch.classList.toggle('active', parseFloat(ch.dataset.cons) === num('t-cons')));
@@ -691,6 +783,9 @@
         $('ch-ac').addEventListener('click', () => { setCharger('ac'); renderCharge(); });
         $('ch-dc').addEventListener('click', () => { setCharger('dc'); renderCharge(); });
 
+        $('lang-en').addEventListener('click', () => applyLang('en'));
+        $('lang-id').addEventListener('click', () => applyLang('id'));
+
         document.querySelectorAll('#c-chips .chip').forEach(ch =>
             ch.addEventListener('click', () => { $('c-tgt').value = ch.dataset.tgt; renderCharge(); }));
         document.querySelectorAll('#t-chips .chip').forEach(ch =>
@@ -701,9 +796,8 @@
             $(id).addEventListener('input', renderTrip));
 
         loadState();
-        setCharger(charger);
-        renderCharge();
-        renderTrip();
+        setCharger(state.charger);
+        applyLang(state.lang);
 
         function runTests() {
             const approx = (a, b, eps = 1e-4) => Math.abs(a - b) <= eps * Math.max(1, Math.abs(a), Math.abs(b));
@@ -711,6 +805,11 @@
             const t = (name, fn) => { try { fn(); checks.push('PASS  ' + name); } catch (e) { checks.push('FAIL  ' + name + ' — ' + e.message); } };
             const assert = (c, msg) => { if (!c) throw new Error(msg); };
 
+            t('i18n EN/ID key parity', () => {
+                const a = Object.keys(I18N.en).sort(), b = Object.keys(I18N.id).sort();
+                assert(JSON.stringify(a) === JSON.stringify(b),
+                    'missing: ' + a.filter(k => !b.includes(k)).concat(b.filter(k => !a.includes(k))).join(', '));
+            });
             t('charge 50→80% AC: kWh into battery', () => {
                 const r = calcCharge(50, 80, 'ac', 1444.70, 0);
                 assert(approx(r.kWhBattery, 9.024), 'got ' + r.kWhBattery);
@@ -777,6 +876,7 @@
             b.classList.remove('hidden');
             b.classList.add(res.ok ? 'pass' : 'fail');
             b.textContent = res.text;
+            window.__atto1test = { applyLang, I18N, state };
         }
     </script>
 </body>

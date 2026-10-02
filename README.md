@@ -2,7 +2,7 @@
 
 Small EV calculator for the **BYD Atto 1 Dynamic (2026, CKD Indonesia)** — 30.08 kWh, 300 km NEDC, AC 6.6 kW, DC 30 kW.
 
-Two calculators:
+Two calculators, in English or Indonesian (toggle top-right, auto-detects browser language):
 
 - **Charge** — how many kWh (and Rupiah) to go from current battery % to a target %, plus estimated charging time and range gained.
 - **Trip** — for a trip of X km, how much battery is used and what % / range remains. Round-trip toggle included.
