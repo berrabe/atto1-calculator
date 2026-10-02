@@ -263,13 +263,12 @@
         }
 
         details.box {
-            border: 1px solid #e5e5ea;
             border-radius: 12px;
         }
 
         details.box summary {
             list-style: none;
-            padding: 11px 14px;
+            padding: 4px 2px;
             font-size: 12px;
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -295,6 +294,14 @@
 
         details.box[open] summary::after {
             content: "−";
+        }
+
+        details.box[open] {
+            border: 1px solid #e5e5ea;
+        }
+
+        details.box[open] summary {
+            padding: 11px 14px;
         }
 
         details.box .box-body {
