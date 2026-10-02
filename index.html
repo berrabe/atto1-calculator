@@ -329,6 +329,13 @@
             margin-top: 6px;
         }
 
+        .hint {
+            font-size: 12px;
+            color: #8e8e93;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
         .result {
             background: #f8f8fc;
             border-radius: 16px;
@@ -526,6 +533,7 @@
                     <div class="field">
                         <label for="t-cur" data-i18n="curBat"></label>
                         <input type="number" id="t-cur" inputmode="decimal" min="0" max="100" step="1" value="80">
+                        <div class="hint" id="t-max-hint"></div>
                     </div>
                 </div>
             </div>
@@ -562,7 +570,6 @@
                     <div class="r"><span class="k" data-i18n="energyUsed"></span><span class="v" id="t-used">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="distance"></span><span class="v" id="t-dist-v">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeRemain"></span><span class="v" id="t-endkm">&mdash;</span></div>
-                    <div class="r"><span class="k" data-i18n="maxRange"></span><span class="v" id="t-max">&mdash;</span></div>
                 </div>
                 <span class="verdict ok hidden" id="t-verdict"></span>
             </div>
@@ -609,7 +616,7 @@
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
                 energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
-                rangeRemain: 'Range remaining (NEDC)', maxRange: 'Max range (real-world, per your consumption)',
+                rangeRemain: 'Range remaining (NEDC)', maxRangeNow: km => `≈ ${km} km available right now (full drain)`,
                 okVerdict: p => `Trip is fine — ${p}% left at arrival`,
                 badVerdict: p => `Not enough charge — short by ~${p} km`,
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
@@ -634,7 +641,7 @@
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
                 energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
-                rangeRemain: 'Range tersisa (NEDC)', maxRange: 'Max range (real-world, sesuai konsumsi)',
+                rangeRemain: 'Range tersisa (NEDC)', maxRangeNow: km => `≈ ${km} km tersedia sekarang (sampai 0%)`,
                 okVerdict: p => `Perjalanan aman — sisa ${p}% saat tiba`,
                 badVerdict: p => `Daya tidak cukup — kurang ~${p} km`,
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
@@ -805,7 +812,7 @@
             $('t-used').textContent = fmt(r.kWhUsed, 2) + ' kWh';
             $('t-dist-v').textContent = fmt(r.dist, 0) + ' km';
             $('t-endkm').textContent = fmt(r.endKm, 0) + ' km';
-            $('t-max').textContent = fmt(r.maxKm, 0) + ' km';
+            $('t-max-hint').textContent = T('maxRangeNow')(fmt(r.maxKm, 0));
             const v = $('t-verdict');
             v.classList.remove('hidden');
             if (r.feasible) {
