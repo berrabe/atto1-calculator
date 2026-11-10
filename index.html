@@ -544,7 +544,7 @@
                     <span class="value" id="c-kwh">&mdash;</span> <span class="unit" id="c-kwh-unit" data-i18n="fromWall"></span>
                 </div>
                 <div class="rows">
-                    <div class="r hidden" id="c-kwh-exact-row"><span class="k" data-i18n="fromWall"></span><span class="v" id="c-kwh-exact">&mdash;</span></div>
+                    <div class="r hidden" id="c-kwh-exact-row"><span class="k" data-i18n="exactLbl"></span><span class="v" id="c-kwh-exact">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="intoBat"></span><span class="v" id="c-bat">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeGained"></span><span class="v" id="c-km">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="estTime"></span><span class="v" id="c-time">&mdash;</span></div>
@@ -554,6 +554,11 @@
                     <div class="r cost-row"><span class="k" data-i18n="estCost"></span><span class="v" id="c-cost">&mdash;</span></div>
                 </div>
             </div>
+
+            <details class="box hidden" id="buy-box">
+                <summary data-i18n="whyBuyQ"></summary>
+                <div class="box-body" data-i18n="whyBuy"></div>
+            </details>
         </section>
 
         <section id="panel-trip" class="hidden">
@@ -652,8 +657,10 @@
                 chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Distance (km)', distRT: 'Distance (round trip)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
                 chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
-                fromWall: 'kWh from wall (you pay this)',
-                buyLbl: 'kWh — buy this at the charger (rounded up)',
+                fromWall: 'kWh you pay for',
+                buyLbl: 'kWh — buy at the charger', exactLbl: 'Before rounding',
+                whyBuyQ: 'Why is the buy number bigger than what goes into the battery?',
+                whyBuy: 'Two reasons. First, ~10% delivery loss: some of the energy leaving the charger becomes heat and powers the car’s converter and battery cooling — that part never comes back, the same is true charging at home. Second, rounding up: PLN Mobile only accepts whole-kWh purchases. The extra is not lost — once charging stops, unused kWh are refunded to your PLN Mobile refund balance.',
                 intoBat: 'Into battery (~90% eff.)', rangeGained: 'Range gained (NEDC)',
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
                 energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
@@ -690,8 +697,10 @@
                 chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Jarak (km)', distRT: 'Jarak (pulang-pergi)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
                 chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
-                fromWall: 'kWh dari dinding (yang kamu bayar)',
-                buyLbl: 'kWh — beli segini di SPKLU (dibulatkan)',
+                fromWall: 'kWh yang dibayar',
+                buyLbl: 'kWh — beli di SPKLU', exactLbl: 'Sebelum dibulatkan',
+                whyBuyQ: 'Kenapa angka belinya lebih besar dari yang masuk baterai?',
+                whyBuy: 'Dua alasan. Pertama, susut pengiriman sekitar 10%: listrik dari charger sebagian hilang menjadi panas dan terpakai konverter serta pendingin baterai. Itu ongkos yang tidak kembali, sama seperti saat mengisi di rumah. Kedua, pembulatan ke atas: PLN Mobile hanya menerima pembelian kWh bulat. Kelebihannya tidak hangus, begitu pengisian berhenti sisa kWh kembali ke saldo refund di aplikasi PLN Mobile.',
                 intoBat: 'Ke baterai (~90% ef.)', rangeGained: 'Range didapat (NEDC)',
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
                 energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
@@ -819,6 +828,7 @@
             $('c-source').textContent = T(state.charger === 'ac' ? 'srcAC' : 'srcDC');
             $('curve-source').textContent = T('srcCurve');
             $('curve-box').classList.toggle('hidden', state.charger !== 'dc');
+            $('buy-box').classList.toggle('hidden', state.charger !== 'dc');
             renderCharge();
             renderTrip();
             saveState();
@@ -882,6 +892,7 @@
             $('c-source').textContent = T(mode === 'ac' ? 'srcAC' : 'srcDC');
             $('curve-source').textContent = T('srcCurve');
             $('curve-box').classList.toggle('hidden', mode !== 'dc');
+            $('buy-box').classList.toggle('hidden', mode !== 'dc');
         }
 
         function renderCharge() {
