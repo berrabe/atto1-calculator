@@ -541,9 +541,10 @@
 
             <div class="result">
                 <div class="primary">
-                    <span class="value" id="c-kwh">&mdash;</span> <span class="unit" data-i18n="fromWall"></span>
+                    <span class="value" id="c-kwh">&mdash;</span> <span class="unit" id="c-kwh-unit" data-i18n="fromWall"></span>
                 </div>
                 <div class="rows">
+                    <div class="r hidden" id="c-kwh-exact-row"><span class="k" data-i18n="fromWall"></span><span class="v" id="c-kwh-exact">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="intoBat"></span><span class="v" id="c-bat">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="rangeGained"></span><span class="v" id="c-km">&mdash;</span></div>
                     <div class="r"><span class="k" data-i18n="estTime"></span><span class="v" id="c-time">&mdash;</span></div>
@@ -651,7 +652,9 @@
                 chargerAC: 'AC · 6.6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Distance (km)', distRT: 'Distance (round trip)', consLbl: 'kWh / 100 km', roundLbl: 'Round trip',
                 chipCity: 'City · 9 kWh', chipMixed: 'Mixed · 11 kWh', chipHwy: 'Highway · 14 kWh',
-                fromWall: 'kWh from wall (you pay this)', intoBat: 'Into battery (~90% eff.)', rangeGained: 'Range gained (NEDC)',
+                fromWall: 'kWh from wall (you pay this)',
+                buyLbl: 'kWh — buy this at the charger (rounded up)',
+                intoBat: 'Into battery (~90% eff.)', rangeGained: 'Range gained (NEDC)',
                 estTime: 'Estimated time', svcFee: 'Service fee', estCost: 'Estimated cost',
                 energyCost: 'Energy cost', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% remaining', energyUsed: 'Energy used', distance: 'Distance',
@@ -662,6 +665,8 @@
                 stop10: km => `🔴 Latest stop: 10% battery (≈ km ${km})`,
                 stopCharge: (km, p) => `⚡ From that stop: ${km} km to go — charge to ≥${p}%`,
                 stopsMany: (km, p, n) => `⚡ From that stop: ${km} km to go — charge to ≥${p}% → ${n} stops needed`,
+                stopFull: (km, p) => `⚡ From that stop: ${km} km to go — charge to 100% (arrive with ~${p}%)`,
+                stopsFee: (n, total) => `💳 DC session fee: Rp1,500 × ${n} = ${total}`,
                 stopNow: '🟢 You’re already below 20% — charge now',
                 srcAC: 'AC: PLN home tariff R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Adjusted quarterly by the government.',
                 srcDC: 'DC: ESDM “Layanan Khusus” SPKLU rate — Rp2.466,78/kWh flat (verified from 6 PLN invoices, Sep 2026). PBJT-TL is a local electricity tax that varies 0–9% per region/transaction (your 6 PLN invoices: 0, 4, 6, 8, 8, 9%). Service fee: PLN SPKLU = Rp0; third-party operators (Voltron etc.) set their own rates — edit manually.',
@@ -685,7 +690,9 @@
                 chargerAC: 'AC · 6,6 kW', chargerDC: 'DC · 30 kW',
                 dist: 'Jarak (km)', distRT: 'Jarak (pulang-pergi)', consLbl: 'kWh / 100 km', roundLbl: 'Pulang-pergi',
                 chipCity: 'Kota · 9 kWh', chipMixed: 'Campuran · 11 kWh', chipHwy: 'Tol · 14 kWh',
-                fromWall: 'kWh dari dinding (yang kamu bayar)', intoBat: 'Ke baterai (~90% ef.)', rangeGained: 'Range didapat (NEDC)',
+                fromWall: 'kWh dari dinding (yang kamu bayar)',
+                buyLbl: 'kWh — beli segini di SPKLU (dibulatkan)',
+                intoBat: 'Ke baterai (~90% ef.)', rangeGained: 'Range didapat (NEDC)',
                 estTime: 'Estimasi waktu', svcFee: 'Biaya layanan', estCost: 'Estimasi biaya',
                 energyCost: 'Biaya listrik', pbjtLbl: 'PBJT-TL',
                 pctRemaining: '% tersisa', energyUsed: 'Energi terpakai', distance: 'Jarak',
@@ -696,6 +703,8 @@
                 stop10: km => `🔴 Batas terakhir: 10% baterai (≈ km ${km})`,
                 stopCharge: (km, p) => `⚡ Dari stop itu: sisa ${km} km — isi minimal ${p}%`,
                 stopsMany: (km, p, n) => `⚡ Dari stop itu: sisa ${km} km — isi minimal ${p}% → butuh ${n} kali charge`,
+                stopFull: (km, p) => `⚡ Dari stop itu: sisa ${km} km — isi sampai 100% (tiba dengan ~${p}%)`,
+                stopsFee: (n, total) => `💳 Biaya layanan DC: Rp1.500 × ${n} = ${total}`,
                 stopNow: '🟢 Baterai sudah di bawah 20% — isi sekarang',
                 srcAC: 'AC: tarif listrik rumah PLN R-1/TR, Q3 2026 — 1.300–2.200 VA: Rp1.444,70/kWh (900 VA: Rp1.352 · 3.500+ VA: Rp1.699,53). Disesuaikan pemerintah tiap kuartal.',
                 srcDC: 'DC: tarif SPKLU “Layanan Khusus” ESDM — Rp2.466,78/kWh flat (terverifikasi dari 6 invoice PLN, Sep 2026). PBJT-TL adalah pajak daerah atas tenaga listrik, bervariasi 0–9% per daerah/transaksi (6 invoice PLN kamu: 0, 4, 6, 8, 8, 9%). Biaya layanan: SPKLU PLN = Rp0; operator pihak ketiga (Voltron dkk.) memakai tarif sendiri — isi manual.',
@@ -754,14 +763,23 @@
             };
         }
 
+        // ponytail: flat +5% DC buy margin covers metered cooling/BMS overhead + gauge compression near top
+        // (field-observed ~4–7% short when buying the exact number); upgrade to per-SOC margin after 3+ logged sessions.
+        const buyKwh = (wall, isDC) => isDC ? Math.ceil(wall * 1.05) : wall;
+
+        const PLAN_FEE = 1500; // PLN Mobile per-transaction DC fee (observed Okt 2026, not refunded)
+
         function planStops(dist, curPct, consPer100) {
-            if (consPer100 <= 0) return { km20: 0, km10: 0, kmLeft: 0, chargeTo: 20, stops: 0 };
+            if (consPer100 <= 0) return { km20: 0, km10: 0, kmLeft: 0, chargeTo: 20, stops: 0, fullRange: 0, arrivalPct: 0, fee: 0 };
             const kmPerPct = CAR.battery / consPer100;
             const km20 = Math.max(0, (curPct - 20) * kmPerPct);
             const km10 = Math.max(0, (curPct - 10) * kmPerPct);
             const kmLeft = Math.max(0, dist - km20);
             const chargeTo = 20 + kmLeft * consPer100 / CAR.battery;
-            return { km20, km10, kmLeft, chargeTo, stops: kmLeft > 0 ? Math.max(1, Math.ceil(kmLeft / (100 * kmPerPct))) : 0 };
+            const stops = kmLeft > 0 ? Math.max(1, Math.ceil(kmLeft / (100 * kmPerPct))) : 0;
+            const fullRange = km20 + 100 * kmPerPct;
+            const arrivalPct = Math.min(chargeTo, 100) - kmLeft / kmPerPct;
+            return { km20, km10, kmLeft, chargeTo, stops, fullRange, arrivalPct, fee: stops * PLAN_FEE };
         }
 
         const $ = id => document.getElementById(id);
@@ -869,9 +887,14 @@
         function renderCharge() {
             if (state.charger === 'ac') state.tariffAC = num('c-tariff');
             else { state.tariffDC = num('c-tariff'); state.pbjtDC = num('c-pbjt'); state.feeDC = num('c-fee'); }
+            const isDC = state.charger === 'dc';
+            $('c-kwh-unit').dataset.i18n = isDC ? 'buyLbl' : 'fromWall';
+            $('c-kwh-unit').textContent = T(isDC ? 'buyLbl' : 'fromWall');
+            $('c-kwh-exact-row').classList.toggle('hidden', !isDC);
             const r = calcCharge(num('c-cur'), num('c-tgt'), state.charger, num('c-tariff'), num('c-pbjt'), num('c-fee'));
             if (r.deltaPct <= 0) {
                 $('c-kwh').textContent = '0';
+                $('c-kwh-exact').textContent = '0 kWh';
                 $('c-bat').textContent = '0 kWh';
                 $('c-km').textContent = '0 km';
                 $('c-time').textContent = '—';
@@ -880,7 +903,8 @@
                 $('c-fee-v').textContent = rp.format(0);
                 $('c-cost').textContent = rp.format(0);
             } else {
-                $('c-kwh').textContent = fmt(r.kWhWall, 2);
+                $('c-kwh').textContent = isDC ? fmt(buyKwh(r.kWhWall, true), 0) : fmt(r.kWhWall, 2);
+                $('c-kwh-exact').textContent = fmt(r.kWhWall, 2) + ' kWh';
                 $('c-bat').textContent = fmt(r.kWhBattery, 2) + ' kWh';
                 $('c-km').textContent = fmt(r.km, 0) + ' km';
                 $('c-time').textContent = fmtTime(r.hours);
@@ -919,8 +943,11 @@
                 const l2 = T('stop10')(km(p.km10));
                 const l3 = p.chargeTo <= 100
                     ? T('stopCharge')(km(p.kmLeft), km(p.chargeTo))
-                    : T('stopsMany')(km(p.kmLeft), km(p.chargeTo), p.stops);
-                stopsBox.innerHTML = `<div>${l1}</div><div>${l2}</div><div>${l3}</div>`;
+                    : p.arrivalPct >= 0
+                        ? T('stopFull')(km(p.kmLeft), fmt(Math.max(0, Math.round(p.arrivalPct)), 0))
+                        : T('stopsMany')(km(p.kmLeft), km(p.chargeTo), p.stops);
+                const l4 = p.fee > 0 ? T('stopsFee')(p.stops, rp.format(p.fee)) : '';
+                stopsBox.innerHTML = `<div>${l1}</div><div>${l2}</div><div>${l3}</div>${l4 ? '<div>' + l4 + '</div>' : ''}`;
                 stopsBox.classList.remove('hidden');
             } else {
                 stopsBox.classList.add('hidden');
@@ -1078,6 +1105,17 @@
             t('stops: cons 0 → no crash, zeros', () => {
                 const p = planStops(500, 90, 0);
                 assert(p.stops === 0 && p.kmLeft === 0, 'got ' + JSON.stringify(p));
+            });
+            t('stops: 460 km from 100% @11 → top-up to 100%, arrive ~11.78%', () => {
+                const p = planStops(460, 100, 11);
+                assert(approx(p.chargeTo, 108.2181), 'chargeTo ' + p.chargeTo);
+                assert(approx(p.arrivalPct, 11.7819), 'arrivalPct ' + p.arrivalPct);
+                assert(p.stops === 1 && p.fullRange > 460, 'stops ' + p.stops + ' fullRange ' + p.fullRange);
+                assert(p.fee === 1500, 'fee ' + p.fee);
+            });
+            t('buy kWh: DC = ceil(wall × 1.05), AC stays exact', () => {
+                assert(buyKwh(20.05, true) === 22, 'dc ' + buyKwh(20.05, true));
+                assert(approx(buyKwh(10.0267, false), 10.0267), 'ac ' + buyKwh(10.0267, false));
             });
 
             const failed = checks.filter(c => c.startsWith('FAIL'));

@@ -26,9 +26,9 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 | Feature | What you get |
 |---|---|
-| **Charge planner** | kWh from the wall (what you pay) vs into the battery, range gained, charging time, and cost — AC 6.6 kW or DC 30 kW |
+| **Charge planner** | kWh to **buy** at the charger (rounded up for DC, exact shown too), wall vs battery kWh, range gained, time, and cost — AC 6.6 kW or DC 30 kW |
 | **DC extras** | PBJT-TL tax + optional per-session service fee, matched to the real SPKLU invoice structure |
-| **Trip planner** | Energy used, remaining %, remaining range, and a clear *enough / not enough* verdict — round-trip toggle included |
+| **Trip planner** | Energy used, remaining %, remaining range, and a clear *enough / not enough* verdict — round-trip toggle included; stop planning counts the PLN Mobile Rp1.500/stop DC fee |
 | **Real-world consumption** | Modeled in kWh/100 km (the unit the car shows): City 9 · Mixed 11 · Highway 14, or your own number |
 | **English / Indonesian** | One-tap toggle, auto-detects browser language |
 | **Offline PWA** | Install once, works forever without internet |
@@ -76,7 +76,7 @@ The Atto 1 shows battery % and a trip computer, but it never tells you **how muc
 
 # 5. 🧪 Self-Test
 
-Append `?test=1` to the URL — a 22-assertion suite runs and shows a pass/fail banner inline, including regression tests that replay real SPKLU invoices:
+Append `?test=1` to the URL — a 24-assertion suite runs and shows a pass/fail banner inline, including regression tests that replay real SPKLU invoices:
 
 ```
 14.452 kWh @ Rp2.466,78 + 8% PBJT = Rp38.502 ✓
